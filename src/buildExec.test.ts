@@ -65,7 +65,7 @@ test('report args using context', () => {
   for (const env of Object.keys(envs)) {
     process.env['INPUT_' + env.toUpperCase()] = envs[env];
   }
-  const expectedArgs : string[] = [];
+  const expectedArgs: string[] = [];
   if (context.eventName == 'pull_request') {
     expectedArgs.push('-C', `${context.payload.pull_request.head.sha}`);
   }
