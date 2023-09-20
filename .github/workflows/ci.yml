@@ -13,22 +13,22 @@ jobs:
         uses: ./
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
           version: v0.2.2
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
   run:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -47,19 +47,19 @@ jobs:
         uses: ./
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
           version: v0.2.2
           verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_ORG_TOKEN }}
