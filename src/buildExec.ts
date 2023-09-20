@@ -26,7 +26,6 @@ const buildCommitExec = () => {
   const slug = core.getInput('slug');
   const token = core.getInput('token');
 
-
   const commitCommand = 'create-commit';
   const commitExecArgs = [];
 
