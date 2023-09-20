@@ -1,0 +1,24 @@
+name: 'Codecov'
+description: "GitHub Action that returns selected test labels from Codecov☂️  to CI"
+inputs:
+  token:
+    description: 'Repository upload token - get it from codecov.io. Requi'
+    required: false
+  os:
+    description: 'Override the assumed OS. Options are linux | macos | windows.'
+    required: false
+  override_commit:
+    description: 'Specify the commit SHA'
+    required: false
+  verbose:
+    description: 'Specify whether the Codecov output should be verbose'
+    required: false
+  version:
+    description: 'Specify which version of the Codecov CLI should be used. Defaults to `latest`'
+    required: false
+branding:
+  color: 'red'
+  icon: 'umbrella'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
