@@ -4,6 +4,9 @@ inputs:
   token:
     description: 'Repository upload token - get it from codecov.io. Requi'
     required: false
+  fail_ci_if_error:
+    description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
+    required: false
   os:
     description: 'Override the assumed OS. Options are linux | macos | windows.'
     required: false
