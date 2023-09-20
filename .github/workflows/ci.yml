@@ -25,6 +25,10 @@ jobs:
           version: v0.2.0
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4-beta
+        env:
+          token: ${{ secrets.CODECOV_TOKEN }}
   run:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -54,4 +58,8 @@ jobs:
         with:
           version: v0.2.0
           verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4-beta
+        env:
           token: ${{ secrets.CODECOV_TOKEN }}
