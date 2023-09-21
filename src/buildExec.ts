@@ -39,7 +39,6 @@ const buildCommitExec = () => {
     GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
   });
 
-
   if (token) {
     commitOptions.env.CODECOV_TOKEN = token;
   }
@@ -68,7 +67,6 @@ const buildCommitExec = () => {
   if (slug) {
     commitExecArgs.push('--slug', `${slug}`);
   }
-
 
   return {commitExecArgs, commitOptions, commitCommand};
 };
@@ -137,6 +135,7 @@ const buildStaticAnalysisExec = () => {
   const foldersToExclude = core.getInput('folders_to_exclude');
   const force = core.getInput('force');
   const overrideCommit = core.getInput('override_commit');
+  const staticToken = core.getInput('static_token');
 
   const staticAnalysisCommand = 'static-analysis';
   const staticAnalysisExecArgs = [];
@@ -151,6 +150,9 @@ const buildStaticAnalysisExec = () => {
     GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
   });
 
+  if (staticToken) {
+    staticAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
+  }
   if (filePattern) {
     staticAnalysisExecArgs.push('--pattern', `${filePattern}`);
   }
@@ -167,7 +169,7 @@ const buildStaticAnalysisExec = () => {
     `${context.eventName}` == 'pull_request_target'
   ) {
     staticAnalysisExecArgs.push(
-        '-C',
+        '--commit-sha',
         `${context.payload.pull_request.head.sha}`,
     );
   }

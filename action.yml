@@ -2,8 +2,11 @@ name: 'Codecov'
 description: "GitHub Action that returns selected test labels from Codecov☂️  to CI"
 inputs:
   token:
-    description: 'Repository upload token - get it from codecov.io. Requi'
+    description: 'Repository upload token - get it from codecov.io. Required'
     required: false
+  static_token:
+    description: 'Repository static token - get it from codecov.io. Required'
+    required: true
   fail_ci_if_error:
     description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
     required: false
