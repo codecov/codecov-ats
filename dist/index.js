@@ -21574,6 +21574,15 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
 
 ;// CONCATENATED MODULE: ./src/helpers.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -21625,18 +21634,18 @@ const getCommand = (filename, generalArgs, command) => {
     core.info(`==> Running command '${fullCommand.join(' ')}'`);
     return fullCommand;
 };
-const runExternalProgram = (programName, optionalArguments = []) => {
-    const result = external_child_process_default().spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
+const runExternalProgram = (programName, optionalArguments = []) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield external_child_process_default().spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
     if (result.error) {
         throw new Error(`Error running external program: ${result.error}`);
     }
     return result.stdout.toString().trim();
-};
-const getParentCommit = () => {
-    const parentCommit = runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+});
+const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
+    const parentCommit = (yield runExternalProgram('git', ['rev-parse', 'HEAD^'])) || '';
     core.debug(`Parent commit: ${parentCommit}`);
     return parentCommit;
-};
+});
 const getPRBaseCommit = () => {
     const context = github.context;
     if (context.eventName == 'pull_request') {
@@ -21648,6 +21657,15 @@ const getPRBaseCommit = () => {
 
 ;// CONCATENATED MODULE: ./src/buildExec.ts
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+var buildExec_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -21791,7 +21809,7 @@ const buildStaticAnalysisExec = () => {
     }
     return { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand };
 };
-const buildLabelAnalysisExec = () => {
+const buildLabelAnalysisExec = () => buildExec_awaiter(void 0, void 0, void 0, function* () {
     const overrideCommit = core.getInput('override_commit');
     const overrideBaseCommit = core.getInput('override_base_commit');
     const maxWaitTime = core.getInput('max_wait_time');
@@ -21822,7 +21840,9 @@ const buildLabelAnalysisExec = () => {
         labelAnalysisOptions.baseCommits = [overrideBaseCommit];
     }
     else {
-        labelAnalysisOptions.baseCommits = [getParentCommit(), getPRBaseCommit()];
+        const parentCommit = yield getParentCommit();
+        const prBaseCommit = getPRBaseCommit();
+        labelAnalysisOptions.baseCommits = [parentCommit, prBaseCommit];
     }
     if (maxWaitTime) {
         labelAnalysisExecArgs.push('--max-wait-time', `${maxWaitTime}`);
@@ -21834,7 +21854,7 @@ const buildLabelAnalysisExec = () => {
         labelAnalysisOptions.testOutputPath = 'tmp-codecov-labels';
     }
     return { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand };
-};
+});
 
 
 // EXTERNAL MODULE: external "crypto"
@@ -23987,7 +24007,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 ;// CONCATENATED MODULE: ./src/validate.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+var validate_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -24003,7 +24023,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 0, void 0, void 0, function* () {
+const verify = (filename, platform, version, verbose, failCi) => validate_awaiter(void 0, void 0, void 0, function* () {
     try {
         const uploaderName = getUploaderName(platform);
         // Read in public key
@@ -24034,7 +24054,7 @@ const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 
         else {
             setFailure('Codecov: Error validating SHASUM signature', failCi);
         }
-        const calculateHash = (filename) => __awaiter(void 0, void 0, void 0, function* () {
+        const calculateHash = (filename) => validate_awaiter(void 0, void 0, void 0, function* () {
             const stream = external_fs_.createReadStream(filename);
             const uploaderSha = external_crypto_.createHash(`sha256`);
             stream.pipe(uploaderSha);
@@ -24111,7 +24131,6 @@ try {
     const { commitExecArgs, commitOptions, commitCommand } = buildCommitExec();
     const { reportExecArgs, reportOptions, reportCommand } = buildReportExec();
     const { args, failCi, os, verbose, uploaderVersion } = buildGeneralExec();
-    const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = buildLabelAnalysisExec();
     const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand, } = buildStaticAnalysisExec();
     const platform = getPlatform(os);
     const filename = external_path_.join(__dirname, getUploaderName(platform));
@@ -24157,6 +24176,7 @@ try {
                 });
             });
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
+                const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
                         const labelArgs = [...labelAnalysisExecArgs];

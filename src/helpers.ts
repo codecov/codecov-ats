@@ -65,11 +65,11 @@ const getCommand = (
   return fullCommand;
 };
 
-const runExternalProgram = (
+const runExternalProgram = async (
     programName: string,
     optionalArguments: string[] = [],
-): string => {
-  const result = childprocess.spawnSync(
+): Promise<string> => {
+  const result = await childprocess.spawnSync(
       programName,
       optionalArguments,
       {maxBuffer: SPAWNPROCESSBUFFERSIZE},
@@ -80,8 +80,11 @@ const runExternalProgram = (
   return result.stdout.toString().trim();
 };
 
-const getParentCommit = (): string => {
-  const parentCommit = runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+const getParentCommit = async (): Promise<string> => {
+  const parentCommit = await runExternalProgram(
+      'git',
+      ['rev-parse', 'HEAD^'],
+  ) || '';
   core.debug(`Parent commit: ${parentCommit}`);
   return parentCommit;
 };

@@ -30,11 +30,6 @@ try {
   const {reportExecArgs, reportOptions, reportCommand} = buildReportExec();
   const {args, failCi, os, verbose, uploaderVersion} = buildGeneralExec();
   const {
-    labelAnalysisExecArgs,
-    labelAnalysisOptions,
-    labelAnalysisCommand,
-  } = buildLabelAnalysisExec();
-  const {
     staticAnalysisExecArgs,
     staticAnalysisOptions,
     staticAnalysisCommand,
@@ -105,6 +100,12 @@ try {
                 });
           };
           const labelAnalysis = async () => {
+            const {
+              labelAnalysisExecArgs,
+              labelAnalysisOptions,
+              labelAnalysisCommand,
+            } = await buildLabelAnalysisExec();
+
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
                 const labelArgs = [...labelAnalysisExecArgs];

@@ -179,7 +179,7 @@ const buildStaticAnalysisExec = () => {
   return {staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand};
 };
 
-const buildLabelAnalysisExec = () => {
+const buildLabelAnalysisExec = async () => {
   const overrideCommit = core.getInput('override_commit');
   const overrideBaseCommit = core.getInput('override_base_commit');
   const maxWaitTime = core.getInput('max_wait_time');
@@ -216,7 +216,9 @@ const buildLabelAnalysisExec = () => {
   if (overrideBaseCommit) {
     labelAnalysisOptions.baseCommits = [overrideBaseCommit];
   } else {
-    labelAnalysisOptions.baseCommits = [getParentCommit(), getPRBaseCommit()];
+    const parentCommit = await getParentCommit();
+    const prBaseCommit = getPRBaseCommit();
+    labelAnalysisOptions.baseCommits = [parentCommit, prBaseCommit];
   }
   if (maxWaitTime) {
     labelAnalysisExecArgs.push('--max-wait-time', `${maxWaitTime}`);
