@@ -105,6 +105,7 @@ try {
               labelAnalysisOptions,
               labelAnalysisCommand,
             } = await buildLabelAnalysisExec();
+            core.info(`${labelAnalysisOptions}`);
 
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {

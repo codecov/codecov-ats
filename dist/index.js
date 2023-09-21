@@ -21643,7 +21643,7 @@ const runExternalProgram = (programName, optionalArguments = []) => __awaiter(vo
 });
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
     const parentCommit = (yield runExternalProgram('git', ['rev-parse', 'HEAD^'])) || '';
-    core.debug(`Parent commit: ${parentCommit}`);
+    core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });
 const getPRBaseCommit = () => {
@@ -24177,6 +24177,7 @@ try {
             });
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
+                core.info(`${labelAnalysisOptions}`);
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
                         const labelArgs = [...labelAnalysisExecArgs];
