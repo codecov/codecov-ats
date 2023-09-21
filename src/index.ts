@@ -9,6 +9,7 @@ import {
   buildCommitExec,
   buildGeneralExec,
   buildReportExec,
+  buildStaticAnalysisExec,
 } from './buildExec';
 import {
   getBaseUrl,
@@ -27,6 +28,11 @@ try {
   const {commitExecArgs, commitOptions, commitCommand} = buildCommitExec();
   const {reportExecArgs, reportOptions, reportCommand} = buildReportExec();
   const {args, failCi, os, verbose, uploaderVersion} = buildGeneralExec();
+  const {
+    staticAnalysisExecArgs,
+    staticAnalysisOptions,
+    staticAnalysisCommand,
+  } = buildStaticAnalysisExec();
 
   const platform = getPlatform(os);
 
@@ -63,6 +69,23 @@ try {
                 getCommand(filename, args, reportCommand).join(' '),
                 reportExecArgs,
                 reportOptions)
+                .then(async (exitCode) => {
+                  if (exitCode == 0) {
+                    await staticAnalysis();
+                  }
+                }).catch((err) => {
+                  setFailure(
+                      `Codecov:
+                      Failed to properly create report: ${err.message}`,
+                      failCi,
+                  );
+                });
+          };
+          const staticAnalysis = async () => {
+            await exec.exec(
+                getCommand(filename, args, staticAnalysisCommand).join(' '),
+                staticAnalysisExecArgs,
+                staticAnalysisOptions)
                 .then(async (exitCode) => {
                   if (exitCode == 0) {
                     core.info(`We did it!`);

@@ -21550,7 +21550,7 @@ var external_https_ = __nccwpck_require__(5687);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var lib_core = __nccwpck_require__(2186);
+var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(1514);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
@@ -21569,12 +21569,12 @@ const isTrue = (variable) => {
         lowercase === 'yes');
 };
 const buildCommitExec = () => {
-    const commitParent = lib_core.getInput('commit_parent');
-    const overrideBranch = lib_core.getInput('override_branch');
-    const overrideCommit = lib_core.getInput('override_commit');
-    const overridePr = lib_core.getInput('override_pr');
-    const slug = lib_core.getInput('slug');
-    const token = lib_core.getInput('token');
+    const commitParent = core.getInput('commit_parent');
+    const overrideBranch = core.getInput('override_branch');
+    const overrideCommit = core.getInput('override_commit');
+    const overridePr = core.getInput('override_pr');
+    const slug = core.getInput('slug');
+    const token = core.getInput('token');
     const commitCommand = 'create-commit';
     const commitExecArgs = [];
     const commitOptions = {};
@@ -21614,11 +21614,11 @@ const buildCommitExec = () => {
     return { commitExecArgs, commitOptions, commitCommand };
 };
 const buildGeneralExec = () => {
-    const failCi = isTrue(lib_core.getInput('fail_ci_if_error'));
-    const os = lib_core.getInput('os');
-    const url = lib_core.getInput('url');
-    const verbose = isTrue(lib_core.getInput('verbose'));
-    let uploaderVersion = lib_core.getInput('version');
+    const failCi = isTrue(core.getInput('fail_ci_if_error'));
+    const os = core.getInput('os');
+    const url = core.getInput('url');
+    const verbose = isTrue(core.getInput('verbose'));
+    let uploaderVersion = core.getInput('version');
     const args = [];
     if (url) {
         args.push('--enterprise-url', `${url}`);
@@ -21632,9 +21632,9 @@ const buildGeneralExec = () => {
     return { args, failCi, os, verbose, uploaderVersion };
 };
 const buildReportExec = () => {
-    const overrideCommit = lib_core.getInput('override_commit');
-    const slug = lib_core.getInput('slug');
-    const token = lib_core.getInput('token');
+    const overrideCommit = core.getInput('override_commit');
+    const slug = core.getInput('slug');
+    const token = core.getInput('token');
     const reportCommand = 'create-report';
     const reportExecArgs = [];
     const reportOptions = {};
@@ -21662,8 +21662,10 @@ const buildReportExec = () => {
     return { reportExecArgs, reportOptions, reportCommand };
 };
 const buildStaticAnalysisExec = () => {
+    const filePattern = core.getInput('file_pattern');
+    const foldersToExclude = core.getInput('folders_to_exclude');
+    const force = core.getInput('force');
     const overrideCommit = core.getInput('override_commit');
-    const slug = core.getInput('slug');
     const staticAnalysisCommand = 'static-analysis';
     const staticAnalysisExecArgs = [];
     const staticAnalysisOptions = {};
@@ -21675,15 +21677,21 @@ const buildStaticAnalysisExec = () => {
         GITHUB_SHA: process.env.GITHUB_SHA,
         GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
     });
+    if (filePattern) {
+        staticAnalysisExecArgs.push('--pattern', `${filePattern}`);
+    }
+    if (foldersToExclude) {
+        staticAnalysisExecArgs.push('--folders-to-exclude', `${foldersToExclude}`);
+    }
+    if (force) {
+        staticAnalysisExecArgs.push('--force');
+    }
     if (overrideCommit) {
         staticAnalysisExecArgs.push('-C', `${overrideCommit}`);
     }
     else if (`${context.eventName}` == 'pull_request' ||
         `${context.eventName}` == 'pull_request_target') {
         staticAnalysisExecArgs.push('-C', `${context.payload.pull_request.head.sha}`);
-    }
-    if (slug) {
-        staticAnalysisExecArgs.push('--slug', `${slug}`);
     }
     return { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand };
 };
@@ -21697,7 +21705,7 @@ const PLATFORMS = [
     'windows',
 ];
 const setFailure = (message, failCi) => {
-    failCi ? lib_core.setFailed(message) : lib_core.warning(message);
+    failCi ? core.setFailed(message) : core.warning(message);
     if (failCi) {
         process.exit();
     }
@@ -21719,15 +21727,15 @@ const isWindows = (platform) => {
 const getPlatform = (os) => {
     var _a;
     if (isValidPlatform(os)) {
-        lib_core.info(`==> ${os} OS provided`);
+        core.info(`==> ${os} OS provided`);
         return os;
     }
     const platform = (_a = process.env.RUNNER_OS) === null || _a === void 0 ? void 0 : _a.toLowerCase();
     if (isValidPlatform(platform)) {
-        lib_core.info(`==> ${platform} OS detected`);
+        core.info(`==> ${platform} OS detected`);
         return platform;
     }
-    lib_core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
+    core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
     return 'linux';
 };
 const getBaseUrl = (platform, version) => {
@@ -21735,7 +21743,7 @@ const getBaseUrl = (platform, version) => {
 };
 const getCommand = (filename, generalArgs, command) => {
     const fullCommand = [filename, ...generalArgs, command];
-    lib_core.info(`==> Running command '${fullCommand.join(' ')}'`);
+    core.info(`==> Running command '${fullCommand.join(' ')}'`);
     return fullCommand;
 };
 
@@ -23931,7 +23939,7 @@ const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 
         });
         const valid = yield verified.signatures[0].verified;
         if (valid) {
-            lib_core.info('==> SHASUM file signed by key id ' +
+            core.info('==> SHASUM file signed by key id ' +
                 verified.signatures[0].keyID.toHex());
         }
         else {
@@ -23948,7 +23956,7 @@ const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 
         });
         const hash = yield calculateHash(filename);
         if (hash === shasum) {
-            lib_core.info(`==> Uploader SHASUM verified (${hash})`);
+            core.info(`==> Uploader SHASUM verified (${hash})`);
         }
         else {
             setFailure('Codecov: Uploader shasum does not match -- ' +
@@ -23975,17 +23983,17 @@ var version_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _
 
 const versionInfo = (platform, version) => version_awaiter(void 0, void 0, void 0, function* () {
     if (version) {
-        lib_core.info(`==> Running version ${version}`);
+        core.info(`==> Running version ${version}`);
     }
     try {
         const metadataRes = yield fetch(`https://cli.codecov.io/${platform}/latest`, {
             headers: { 'Accept': 'application/json' },
         });
         const metadata = yield metadataRes.json();
-        lib_core.info(`==> Running version ${metadata['version']}`);
+        core.info(`==> Running version ${metadata['version']}`);
     }
     catch (err) {
-        lib_core.info(`Could not pull latest version information: ${err}`);
+        core.info(`Could not pull latest version information: ${err}`);
     }
 });
 /* harmony default export */ const version = (versionInfo);
@@ -24014,6 +24022,7 @@ try {
     const { commitExecArgs, commitOptions, commitCommand } = buildCommitExec();
     const { reportExecArgs, reportOptions, reportCommand } = buildReportExec();
     const { args, failCi, os, verbose, uploaderVersion } = buildGeneralExec();
+    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand, } = buildStaticAnalysisExec();
     const platform = getPlatform(os);
     const filename = external_path_.join(__dirname, getUploaderName(platform));
     external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
@@ -24039,7 +24048,18 @@ try {
                 yield exec.exec(getCommand(filename, args, reportCommand).join(' '), reportExecArgs, reportOptions)
                     .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                     if (exitCode == 0) {
-                        lib_core.info(`We did it!`);
+                        yield staticAnalysis();
+                    }
+                })).catch((err) => {
+                    setFailure(`Codecov:
+                      Failed to properly create report: ${err.message}`, failCi);
+                });
+            });
+            const staticAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
+                yield exec.exec(getCommand(filename, args, staticAnalysisCommand).join(' '), staticAnalysisExecArgs, staticAnalysisOptions)
+                    .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
+                    if (exitCode == 0) {
+                        core.info(`We did it!`);
                     }
                 })).catch((err) => {
                     setFailure(`Codecov:

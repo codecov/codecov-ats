@@ -133,8 +133,10 @@ const buildReportExec = () => {
 };
 
 const buildStaticAnalysisExec = () => {
+  const filePattern = core.getInput('file_pattern');
+  const foldersToExclude = core.getInput('folders_to_exclude');
+  const force = core.getInput('force');
   const overrideCommit = core.getInput('override_commit');
-  const slug = core.getInput('slug');
 
   const staticAnalysisCommand = 'static-analysis';
   const staticAnalysisExecArgs = [];
@@ -149,6 +151,15 @@ const buildStaticAnalysisExec = () => {
     GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
   });
 
+  if (filePattern) {
+    staticAnalysisExecArgs.push('--pattern', `${filePattern}`);
+  }
+  if (foldersToExclude) {
+    staticAnalysisExecArgs.push('--folders-to-exclude', `${foldersToExclude}`);
+  }
+  if (force) {
+    staticAnalysisExecArgs.push('--force');
+  }
   if (overrideCommit) {
     staticAnalysisExecArgs.push('-C', `${overrideCommit}`);
   } else if (
@@ -159,9 +170,6 @@ const buildStaticAnalysisExec = () => {
         '-C',
         `${context.payload.pull_request.head.sha}`,
     );
-  }
-  if (slug) {
-    staticAnalysisExecArgs.push('--slug', `${slug}`);
   }
 
   return {staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand};
