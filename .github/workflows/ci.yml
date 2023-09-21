@@ -12,23 +12,26 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
           # fail_ci_if_error: true
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
           version: v0.2.2
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         with:
@@ -52,23 +55,26 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
           # fail_ci_if_error: true
-          static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
           version: v0.2.2
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         with:
