@@ -10,20 +10,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.0.0
-      - name: Upload coverage to Codecov (script)
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install python dependencies
+        run: pip install -r app/requirements.txt
+      - name: Run ATS (script)
         uses: ./
         with:
           fail_ci_if_error: true
           verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
-          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
-      - name: Upload coverage to Codecov (version)
-        uses: ./
-        with:
-          fail_ci_if_error: true
-          verbose: true
-          version: v0.3.02
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
@@ -43,7 +40,13 @@ jobs:
         run: npm run lint
       - name: Run tests and collect coverage
         run: npm run test
-      - name: Upload coverage to Codecov (script)
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install python dependencies
+        run: pip install -r app/requirements.txt
+      - name: Run ATS
         uses: ./
         with:
           fail_ci_if_error: true
@@ -52,16 +55,8 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
-      - name: Upload coverage to Codecov (version)
-        uses: ./
-        with:
-          fail_ci_if_error: true
-          folders_to_exclude: node_modules
-          verbose: true
-          version: v0.3.02
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
-          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+      - name: Run Tests and collect coverage
+        run: pytest --cov app
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
