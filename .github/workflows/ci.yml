@@ -1,0 +1,68 @@
+name: Workflow for Codecov Action
+on: [push, pull_request]
+jobs:
+  no-deps:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        #os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
+      - name: Upload coverage to Codecov (script)
+        uses: ./
+        with:
+          fail_ci_if_error: true
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+      - name: Upload coverage to Codecov (version)
+        uses: ./
+        with:
+          fail_ci_if_error: true
+          verbose: true
+          version: v0.3.02
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+
+  run:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        #os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Run tests and collect coverage
+        run: npm run test
+      - name: Upload coverage to Codecov (script)
+        uses: ./
+        with:
+          fail_ci_if_error: true
+          folders_to_exclude: node_modules
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+      - name: Upload coverage to Codecov (version)
+        uses: ./
+        with:
+          fail_ci_if_error: true
+          folders_to_exclude: node_modules
+          verbose: true
+          version: v0.3.02
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4-beta
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}

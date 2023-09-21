@@ -1,0 +1,39 @@
+name: 'Codecov'
+description: "GitHub Action that returns selected test labels from Codecov☂️  to CI"
+inputs:
+  token:
+    description: 'Repository upload token - get it from codecov.io. Required'
+    required: false
+  static_token:
+    description: 'Repository static token - get it from codecov.io. Required'
+    required: true
+  fail_ci_if_error:
+    description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
+    required: false
+  file_pattern:
+    description: "File pattern to search for. Defaults to '*'"
+    required: false
+  folders_to_exclude:
+    description: "Avoid certain folders when uploading static analysis"
+    requred: false
+  force:
+    description: 'Force upload of files during static analysis regardless if they are new'
+    required: false
+  os:
+    description: 'Override the assumed OS. Options are linux | macos | windows.'
+    required: false
+  override_commit:
+    description: 'Commit SHA (with 40 chars)'
+    required: false
+  verbose:
+    description: 'Specify whether the Codecov output should be verbose'
+    required: false
+  version:
+    description: 'Specify which version of the Codecov CLI should be used. Defaults to `latest`'
+    required: false
+branding:
+  color: 'red'
+  icon: 'umbrella'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
