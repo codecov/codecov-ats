@@ -24190,7 +24190,7 @@ try {
                         };
                         yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                             if (exitCode == 0) {
-                                const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replace('"', '');
+                                const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
                                 core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
                                 core.info(`${tests}`);
                             }

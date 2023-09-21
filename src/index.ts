@@ -130,7 +130,9 @@ try {
                   if (exitCode == 0) {
                     const tests = labels.replace(
                         'ATS_TESTS_TO_RUN=', '',
-                    ).replace('"', '');
+                    ).replaceAll(
+                        '"', '',
+                    );
                     core.exportVariable(
                         'CODECOV_ATS_TESTS_TO_RUN',
                         tests,
