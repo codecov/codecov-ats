@@ -34,7 +34,7 @@ jobs:
         with:
           version: v0.2.2
         env:
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
   run:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -74,4 +74,4 @@ jobs:
         with:
           version: v0.2.2
         env:
-          token: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
