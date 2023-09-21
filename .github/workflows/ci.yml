@@ -47,6 +47,7 @@ jobs:
         uses: ./
         with:
           fail_ci_if_error: true
+          folders_to_exclude: node_modules
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
@@ -55,6 +56,7 @@ jobs:
         uses: ./
         with:
           fail_ci_if_error: true
+          folders_to_exclude: node_modules
           verbose: true
           version: v0.3.02
         env:
