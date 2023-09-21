@@ -8,6 +8,7 @@ import * as exec from '@actions/exec';
 import {
   buildCommitExec,
   buildGeneralExec,
+  buildLabelAnalysisExec,
   buildReportExec,
   buildStaticAnalysisExec,
 } from './buildExec';
@@ -28,6 +29,11 @@ try {
   const {commitExecArgs, commitOptions, commitCommand} = buildCommitExec();
   const {reportExecArgs, reportOptions, reportCommand} = buildReportExec();
   const {args, failCi, os, verbose, uploaderVersion} = buildGeneralExec();
+  const {
+    labelAnalysisExecArgs,
+    labelAnalysisOptions,
+    labelAnalysisCommand,
+  } = buildLabelAnalysisExec();
   const {
     staticAnalysisExecArgs,
     staticAnalysisOptions,
@@ -88,6 +94,28 @@ try {
                 staticAnalysisOptions)
                 .then(async (exitCode) => {
                   if (exitCode == 0) {
+                    await labelAnalysis();
+                  }
+                }).catch((err) => {
+                  setFailure(
+                      `Codecov:
+                      Failed to properly create report: ${err.message}`,
+                      failCi,
+                  );
+                });
+          };
+          const labelAnalysis = async () => {
+            for (const baseCommit of labelAnalysisOptions.baseCommits) {
+              if (baseCommit != '') {
+                const args = [...labelAnalysisExecArgs];
+                args.push('--base-sha', baseCommit);
+                const labels = await exec.exec(
+                    getCommand(filename, args, labelAnalysisCommand).join(' '),
+                    args,
+                    labelAnalysisOptions,
+                ).then(async (exitCode) => {
+                  if (exitCode == 0) {
+                    core.info(`${labels}`);
                     core.info(`We did it!`);
                   }
                 }).catch((err) => {
@@ -97,6 +125,8 @@ try {
                       failCi,
                   );
                 });
+              }
+            }
           };
           await exec.exec(
               getCommand(

@@ -3,6 +3,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+import {getParentCommit, getPRBaseCommit} from './helpers';
+
 
 const context = github.context;
 
@@ -177,9 +179,62 @@ const buildStaticAnalysisExec = () => {
   return {staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand};
 };
 
+const buildLabelAnalysisExec = () => {
+  const overrideCommit = core.getInput('override_commit');
+  const overrideBaseCommit = core.getInput('override_base_commit');
+  const maxWaitTime = core.getInput('max_wait_time');
+  const testOutputPath = core.getInput('test_output_path');
+  const staticToken = core.getInput('static_token');
+
+  const labelAnalysisCommand = 'label-analysis';
+  const labelAnalysisExecArgs = ['--dry-run'];
+
+  const labelAnalysisOptions:any = {};
+  labelAnalysisOptions.env = Object.assign(process.env, {
+    GITHUB_ACTION: process.env.GITHUB_ACTION,
+    GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+    GITHUB_REF: process.env.GITHUB_REF,
+    GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+    GITHUB_SHA: process.env.GITHUB_SHA,
+    GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
+  });
+
+  if (staticToken) {
+    labelAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
+  }
+  if (overrideCommit) {
+    labelAnalysisExecArgs.push('-C', `${overrideCommit}`);
+  } else if (
+    `${context.eventName}` == 'pull_request' ||
+    `${context.eventName}` == 'pull_request_target'
+  ) {
+    labelAnalysisExecArgs.push(
+        '--commit-sha',
+        `${context.payload.pull_request.head.sha}`,
+    );
+  }
+  if (overrideBaseCommit) {
+    labelAnalysisOptions.baseCommits = [overrideBaseCommit];
+  } else {
+    labelAnalysisOptions.baseCommits = [getParentCommit(), getPRBaseCommit()];
+  }
+  if (maxWaitTime) {
+    labelAnalysisExecArgs.push('--max-wait-time', `${maxWaitTime}`);
+  }
+  if (testOutputPath) {
+    labelAnalysisOptions.testOutputPath = testOutputPath;
+  } else {
+    labelAnalysisOptions.testOutputPath = 'tmp-codecov-labels';
+  }
+
+  return {labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand};
+};
+
+
 export {
   buildCommitExec,
   buildGeneralExec,
+  buildLabelAnalysisExec,
   buildReportExec,
   buildStaticAnalysisExec,
 };

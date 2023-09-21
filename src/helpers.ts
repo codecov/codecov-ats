@@ -1,4 +1,8 @@
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+import childprocess from 'child_process';
+
+import {SPAWNPROCESSBUFFERSIZE} from './constants';
 
 const PLATFORMS = [
   'linux',
@@ -61,13 +65,43 @@ const getCommand = (
   return fullCommand;
 };
 
+const runExternalProgram = (
+    programName: string,
+    optionalArguments: string[] = [],
+): string => {
+  const result = childprocess.spawnSync(
+      programName,
+      optionalArguments,
+      {maxBuffer: SPAWNPROCESSBUFFERSIZE},
+  );
+  if (result.error) {
+    throw new Error(`Error running external program: ${result.error}`);
+  }
+  return result.stdout.toString().trim();
+};
+
+const getParentCommit = (): string => {
+  return runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+};
+
+const getPRBaseCommit = (): string => {
+  const context = github.context;
+  if (context.eventName == 'pull_request') {
+    return context.payload.pull_request.base.sha;
+  }
+  return '';
+};
+
 export {
   PLATFORMS,
   getBaseUrl,
+  getCommand,
+  getPRBaseCommit,
+  getParentCommit,
   getPlatform,
   getUploaderName,
   isValidPlatform,
   isWindows,
+  runExternalProgram,
   setFailure,
-  getCommand,
 };

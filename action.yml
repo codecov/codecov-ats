@@ -19,8 +19,14 @@ inputs:
   force:
     description: 'Force upload of files during static analysis regardless if they are new'
     required: false
+  max_wait_time:
+    description: 'Max time (in seconds) to wait for the label analysis. Default is to wait forever.'
+    required: false
   os:
     description: 'Override the assumed OS. Options are linux | macos | windows.'
+    required: false
+  override_base_commit:
+    description: 'Override the assumed base commit.'
     required: false
   override_commit:
     description: 'Commit SHA (with 40 chars)'
@@ -31,6 +37,10 @@ inputs:
   version:
     description: 'Specify which version of the Codecov CLI should be used. Defaults to `latest`'
     required: false
+  test_output_path:
+    description: 'Temporary file where label analysis tests will be saved to. Defaults to ./tmp-codecov-labels'
+    required: false
+
 branding:
   color: 'red'
   icon: 'umbrella'
