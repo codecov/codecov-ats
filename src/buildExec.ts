@@ -209,7 +209,7 @@ const buildLabelAnalysisExec = () => {
     `${context.eventName}` == 'pull_request_target'
   ) {
     labelAnalysisExecArgs.push(
-        '--commit-sha',
+        '--head-sha',
         `${context.payload.pull_request.head.sha}`,
     );
   }

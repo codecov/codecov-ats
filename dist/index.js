@@ -21816,7 +21816,7 @@ const buildLabelAnalysisExec = () => {
     }
     else if (`${context.eventName}` == 'pull_request' ||
         `${context.eventName}` == 'pull_request_target') {
-        labelAnalysisExecArgs.push('--commit-sha', `${context.payload.pull_request.head.sha}`);
+        labelAnalysisExecArgs.push('--head-sha', `${context.payload.pull_request.head.sha}`);
     }
     if (overrideBaseCommit) {
         labelAnalysisOptions.baseCommits = [overrideBaseCommit];
