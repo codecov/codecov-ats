@@ -21633,7 +21633,9 @@ const runExternalProgram = (programName, optionalArguments = []) => {
     return result.stdout.toString().trim();
 };
 const getParentCommit = () => {
-    return runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+    const parentCommit = runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+    core.debug(`Parent commit: ${parentCommit}`);
+    return parentCommit;
 };
 const getPRBaseCommit = () => {
     const context = github.context;

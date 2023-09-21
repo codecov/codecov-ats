@@ -81,7 +81,9 @@ const runExternalProgram = (
 };
 
 const getParentCommit = (): string => {
-  return runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+  const parentCommit = runExternalProgram('git', ['rev-parse', 'HEAD^']) || '';
+  core.debug(`Parent commit: ${parentCommit}`);
+  return parentCommit;
 };
 
 const getPRBaseCommit = (): string => {
