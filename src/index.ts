@@ -116,13 +116,9 @@ try {
                 );
 
                 let labels = '';
-                let errors = '';
                 labelAnalysisOptions.listeners = {
                   stdout: (data: Buffer) => {
                     labels += data.toString();
-                  },
-                  stderr: (data: Buffer) => {
-                    errors += data.toString();
                   },
                 };
 
@@ -131,11 +127,12 @@ try {
                     labelArgs,
                     labelAnalysisOptions,
                 ).then(async (exitCode) => {
-                  core.info(`exitCode ${exitCode}`);
-                  core.info(`labels ${labels} end of labels`);
-                  core.info(`errors ${errors} end of errors`);
                   if (exitCode == 0) {
-                    core.info(`We did it!`);
+                    core.exportVariable(
+                        'CODECOV_ATS_TESTS_TO_RUN',
+                        labels.split('=')[1],
+                    );
+                    core.info(`${labels.split('=')[1]}`);
                   }
                 }).catch((err) => {
                   setFailure(

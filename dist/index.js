@@ -24183,21 +24183,15 @@ try {
                         const labelArgs = [...labelAnalysisExecArgs];
                         labelArgs.push('--base-sha', '4abb01826b01e2693b469c51589fb6c2045d6ede');
                         let labels = '';
-                        let errors = '';
                         labelAnalysisOptions.listeners = {
                             stdout: (data) => {
                                 labels += data.toString();
                             },
-                            stderr: (data) => {
-                                errors += data.toString();
-                            },
                         };
                         yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
-                            core.info(`exitCode ${exitCode}`);
-                            core.info(`labels ${labels} end of labels`);
-                            core.info(`errors ${errors} end of errors`);
                             if (exitCode == 0) {
-                                core.info(`We did it!`);
+                                core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', labels.split('=')[1]);
+                                core.info(`${labels.split('=')[1]}`);
                             }
                         })).catch((err) => {
                             setFailure(`Codecov:
