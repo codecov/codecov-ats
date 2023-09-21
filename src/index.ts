@@ -107,11 +107,11 @@ try {
           const labelAnalysis = async () => {
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
-                const args = [...labelAnalysisExecArgs];
-                args.push('--base-sha', baseCommit);
+                const labelArgs = [...labelAnalysisExecArgs];
+                labelArgs.push('--base-sha', baseCommit);
                 const labels = await exec.exec(
                     getCommand(filename, args, labelAnalysisCommand).join(' '),
-                    args,
+                    labelArgs,
                     labelAnalysisOptions,
                 ).then(async (exitCode) => {
                   if (exitCode == 0) {

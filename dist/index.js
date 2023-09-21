@@ -24157,9 +24157,9 @@ try {
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
-                        const args = [...labelAnalysisExecArgs];
-                        args.push('--base-sha', baseCommit);
-                        const labels = yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), args, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
+                        const labelArgs = [...labelAnalysisExecArgs];
+                        labelArgs.push('--base-sha', baseCommit);
+                        const labels = yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                             if (exitCode == 0) {
                                 core.info(`${labels}`);
                                 core.info(`We did it!`);
