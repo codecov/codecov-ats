@@ -24190,8 +24190,8 @@ try {
                         };
                         yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                             if (exitCode == 0) {
-                                core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', labels.split('=', 1)[1]);
-                                core.info(`${labels.split('=', 1)[1]}`);
+                                core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', labels.replace('ATS_TESTS_TO_RUN=', ''));
+                                core.info(`${labels.replace('ATS_TESTS_TO_RUN=', '')}`);
                             }
                         })).catch((err) => {
                             setFailure(`Codecov:
