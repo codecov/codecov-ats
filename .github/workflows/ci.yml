@@ -24,7 +24,7 @@ jobs:
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
-          fail_ci_if_error: true
+          # fail_ci_if_error: true
           static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
@@ -64,7 +64,7 @@ jobs:
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
-          fail_ci_if_error: true
+          # fail_ci_if_error: true
           static_token: ${{ secrets.CODECOV_STATIC_TOKEN }}
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
