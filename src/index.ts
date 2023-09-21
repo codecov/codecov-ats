@@ -110,7 +110,10 @@ try {
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
                 const labelArgs = [...labelAnalysisExecArgs];
-                labelArgs.push('--base-sha', baseCommit);
+                labelArgs.push(
+                    '--base-sha',
+                    '4abb01826b01e2693b469c51589fb6c2045d6ede',
+                );
                 const labels = await exec.exec(
                     getCommand(filename, args, labelAnalysisCommand).join(' '),
                     labelArgs,
