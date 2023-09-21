@@ -130,9 +130,9 @@ try {
                   if (exitCode == 0) {
                     core.exportVariable(
                         'CODECOV_ATS_TESTS_TO_RUN',
-                        labels.split('=')[1],
+                        labels.split('=', 1)[1],
                     );
-                    core.info(`${labels.split('=')[1]}`);
+                    core.info(`${labels.split('=', 1)[1]}`);
                   }
                 }).catch((err) => {
                   setFailure(
