@@ -12,6 +12,7 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
+          fail_ci_if_error: true
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
@@ -19,6 +20,7 @@ jobs:
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
+          fail_ci_if_error: true
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
@@ -26,16 +28,14 @@ jobs:
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
-          # fail_ci_if_error: true
+          fail_ci_if_error: true
           verbose: true
-          version: v0.2.2
+          version: v0.3.02
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
-        with:
-          version: v0.2.2
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
   run:
@@ -55,6 +55,7 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
+          fail_ci_if_error: true
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
@@ -62,6 +63,7 @@ jobs:
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
+          fail_ci_if_error: true
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
@@ -69,15 +71,13 @@ jobs:
       - name: Upload coverage to Codecov (version)
         uses: ./
         with:
-          # fail_ci_if_error: true
+          fail_ci_if_error: true
           verbose: true
-          version: v0.2.2
+          version: v0.3.02
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
-        with:
-          version: v0.2.2
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
