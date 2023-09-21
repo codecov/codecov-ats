@@ -21679,7 +21679,7 @@ const buildStaticAnalysisExec = () => {
         GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
     });
     if (staticToken) {
-        staticAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
+        staticAnalysisExecArgs.push('--token', `${staticToken}`);
     }
     if (filePattern) {
         staticAnalysisExecArgs.push('--pattern', `${filePattern}`);

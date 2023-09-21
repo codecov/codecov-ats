@@ -151,7 +151,7 @@ const buildStaticAnalysisExec = () => {
   });
 
   if (staticToken) {
-    staticAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
+    staticAnalysisExecArgs.push('--token', `${staticToken}`);
   }
   if (filePattern) {
     staticAnalysisExecArgs.push('--pattern', `${filePattern}`);
