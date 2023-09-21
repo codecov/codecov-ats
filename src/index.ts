@@ -128,11 +128,14 @@ try {
                     labelAnalysisOptions,
                 ).then(async (exitCode) => {
                   if (exitCode == 0) {
+                    const tests = labels.replace(
+                        'ATS_TESTS_TO_RUN=', '',
+                    ).replace('"', '');
                     core.exportVariable(
                         'CODECOV_ATS_TESTS_TO_RUN',
-                        labels.replace('ATS_TESTS_TO_RUN=', ''),
+                        tests,
                     );
-                    core.info(`${labels.replace('ATS_TESTS_TO_RUN=', '')}`);
+                    core.info(`${tests}`);
                   }
                 }).catch((err) => {
                   setFailure(
