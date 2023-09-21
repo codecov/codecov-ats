@@ -114,19 +114,33 @@ try {
                     '--base-sha',
                     '4abb01826b01e2693b469c51589fb6c2045d6ede',
                 );
-                const labels = await exec.exec(
+
+                let labels = '';
+                let errors = '';
+                labelAnalysisOptions.listeners = {
+                  stdout: (data: Buffer) => {
+                    labels += data.toString();
+                  },
+                  stderr: (data: Buffer) => {
+                    errors += data.toString();
+                  },
+                };
+
+                await exec.exec(
                     getCommand(filename, args, labelAnalysisCommand).join(' '),
                     labelArgs,
                     labelAnalysisOptions,
                 ).then(async (exitCode) => {
+                  core.info(`exitCode ${exitCode}`);
+                  core.info(`labels ${labels} end of labels`);
+                  core.info(`errors ${errors} end of errors`);
                   if (exitCode == 0) {
-                    core.info(`${labels}`);
                     core.info(`We did it!`);
                   }
                 }).catch((err) => {
                   setFailure(
                       `Codecov:
-                      Failed to properly create report: ${err.message}`,
+                      Failed to properly retrieve labels: ${err.message}`,
                       failCi,
                   );
                 });
