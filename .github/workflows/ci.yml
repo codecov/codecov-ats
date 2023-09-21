@@ -12,13 +12,11 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
-          fail_ci_if_error: true
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
           verbose: true
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
-          fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (version)
@@ -49,13 +47,11 @@ jobs:
       - name: Upload coverage to Codecov (script)
         uses: ./
         with:
-          fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (demo)
         uses: ./
         with:
-          fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_ORG_TOKEN }}
       - name: Upload coverage to Codecov (version)
