@@ -21430,6 +21430,18 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	__nccwpck_require__.m = __webpack_modules__;
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -21555,8 +21567,116 @@ var core = __nccwpck_require__(2186);
 var exec = __nccwpck_require__(1514);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: external "child_process"
+var external_child_process_ = __nccwpck_require__(2081);
+var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
+;// CONCATENATED MODULE: ./src/constants.ts
+const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
+
+;// CONCATENATED MODULE: ./src/helpers.ts
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+const PLATFORMS = [
+    'linux',
+    'macos',
+    'windows',
+];
+const setFailure = (message, failCi) => {
+    failCi ? core.setFailed(message) : core.warning(message);
+    if (failCi) {
+        process.exit();
+    }
+};
+const getUploaderName = (platform) => {
+    if (isWindows(platform)) {
+        return 'codecov.exe';
+    }
+    else {
+        return 'codecov';
+    }
+};
+const isValidPlatform = (platform) => {
+    return PLATFORMS.includes(platform);
+};
+const isWindows = (platform) => {
+    return platform === 'windows';
+};
+const getPlatform = (os) => {
+    var _a;
+    if (isValidPlatform(os)) {
+        core.info(`==> ${os} OS provided`);
+        return os;
+    }
+    const platform = (_a = process.env.RUNNER_OS) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+    if (isValidPlatform(platform)) {
+        core.info(`==> ${platform} OS detected`);
+        return platform;
+    }
+    core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
+    return 'linux';
+};
+const getBaseUrl = (platform, version) => {
+    return `https://cli.codecov.io/${version}/${platform}/${getUploaderName(platform)}`;
+};
+const getCommand = (filename, generalArgs, command) => {
+    const fullCommand = [filename, ...generalArgs, command];
+    core.info(`==> Running command '${fullCommand.join(' ')}'`);
+    return fullCommand;
+};
+const runExternalProgram = (programName, optionalArguments = []) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield external_child_process_default().spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
+    if (result.error) {
+        throw new Error(`Error running external program: ${result.error}`);
+    }
+    return result.stdout.toString().trim();
+});
+const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
+    const context = github.context;
+    let parentCommit = '';
+    if (context.eventName == 'pull_request') {
+        const currentCommit = context.payload.pull_request.head.sha;
+        parentCommit = (yield runExternalProgram('git', ['rev-parse', `${currentCommit}^`])) || '';
+    }
+    else {
+        parentCommit = (yield runExternalProgram('git', ['rev-parse', `HEAD^`])) || '';
+    }
+    core.info(`Parent commit: ${parentCommit}`);
+    return parentCommit;
+});
+const getPRBaseCommit = () => {
+    const context = github.context;
+    if (context.eventName == 'pull_request') {
+        const baseSha = context.payload.pull_request.base.sha;
+        core.info(`PR Base commit: ${baseSha}`);
+        return baseSha;
+    }
+    return '';
+};
+
+
 ;// CONCATENATED MODULE: ./src/buildExec.ts
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+var buildExec_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
 
 
 const context = github.context;
@@ -21699,57 +21819,52 @@ const buildStaticAnalysisExec = () => {
     }
     return { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand };
 };
-
-
-;// CONCATENATED MODULE: ./src/helpers.ts
-
-const PLATFORMS = [
-    'linux',
-    'macos',
-    'windows',
-];
-const setFailure = (message, failCi) => {
-    failCi ? core.setFailed(message) : core.warning(message);
-    if (failCi) {
-        process.exit();
+const buildLabelAnalysisExec = () => buildExec_awaiter(void 0, void 0, void 0, function* () {
+    const overrideCommit = core.getInput('override_commit');
+    const overrideBaseCommit = core.getInput('override_base_commit');
+    const maxWaitTime = core.getInput('max_wait_time');
+    const testOutputPath = core.getInput('test_output_path');
+    const staticToken = core.getInput('static_token');
+    const labelAnalysisCommand = 'label-analysis';
+    const labelAnalysisExecArgs = ['--dry-run'];
+    const labelAnalysisOptions = {};
+    labelAnalysisOptions.env = Object.assign(process.env, {
+        GITHUB_ACTION: process.env.GITHUB_ACTION,
+        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+        GITHUB_REF: process.env.GITHUB_REF,
+        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+        GITHUB_SHA: process.env.GITHUB_SHA,
+        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
+    });
+    if (staticToken) {
+        labelAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
     }
-};
-const getUploaderName = (platform) => {
-    if (isWindows(platform)) {
-        return 'codecov.exe';
+    if (overrideCommit) {
+        labelAnalysisExecArgs.push('-C', `${overrideCommit}`);
+    }
+    else if (`${context.eventName}` == 'pull_request' ||
+        `${context.eventName}` == 'pull_request_target') {
+        labelAnalysisExecArgs.push('--head-sha', `${context.payload.pull_request.head.sha}`);
+    }
+    if (overrideBaseCommit) {
+        labelAnalysisOptions.baseCommits = [overrideBaseCommit];
     }
     else {
-        return 'codecov';
+        const parentCommit = yield getParentCommit();
+        const prBaseCommit = getPRBaseCommit();
+        labelAnalysisOptions.baseCommits = [parentCommit, prBaseCommit];
     }
-};
-const isValidPlatform = (platform) => {
-    return PLATFORMS.includes(platform);
-};
-const isWindows = (platform) => {
-    return platform === 'windows';
-};
-const getPlatform = (os) => {
-    var _a;
-    if (isValidPlatform(os)) {
-        core.info(`==> ${os} OS provided`);
-        return os;
+    if (maxWaitTime) {
+        labelAnalysisExecArgs.push('--max-wait-time', `${maxWaitTime}`);
     }
-    const platform = (_a = process.env.RUNNER_OS) === null || _a === void 0 ? void 0 : _a.toLowerCase();
-    if (isValidPlatform(platform)) {
-        core.info(`==> ${platform} OS detected`);
-        return platform;
+    if (testOutputPath) {
+        labelAnalysisOptions.testOutputPath = testOutputPath;
     }
-    core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
-    return 'linux';
-};
-const getBaseUrl = (platform, version) => {
-    return `https://cli.codecov.io/${version}/${platform}/${getUploaderName(platform)}`;
-};
-const getCommand = (filename, generalArgs, command) => {
-    const fullCommand = [filename, ...generalArgs, command];
-    core.info(`==> Running command '${fullCommand.join(' ')}'`);
-    return fullCommand;
-};
+    else {
+        labelAnalysisOptions.testOutputPath = 'tmp-codecov-labels';
+    }
+    return { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand };
+});
 
 
 // EXTERNAL MODULE: external "crypto"
@@ -23902,7 +24017,7 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 ;// CONCATENATED MODULE: ./src/validate.ts
-var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+var validate_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -23918,7 +24033,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 0, void 0, void 0, function* () {
+const verify = (filename, platform, version, verbose, failCi) => validate_awaiter(void 0, void 0, void 0, function* () {
     try {
         const uploaderName = getUploaderName(platform);
         // Read in public key
@@ -23949,7 +24064,7 @@ const verify = (filename, platform, version, verbose, failCi) => __awaiter(void 
         else {
             setFailure('Codecov: Error validating SHASUM signature', failCi);
         }
-        const calculateHash = (filename) => __awaiter(void 0, void 0, void 0, function* () {
+        const calculateHash = (filename) => validate_awaiter(void 0, void 0, void 0, function* () {
             const stream = external_fs_.createReadStream(filename);
             const uploaderSha = external_crypto_.createHash(`sha256`);
             stream.pipe(uploaderSha);
@@ -24026,7 +24141,7 @@ try {
     const { commitExecArgs, commitOptions, commitCommand } = buildCommitExec();
     const { reportExecArgs, reportOptions, reportCommand } = buildReportExec();
     const { args, failCi, os, verbose, uploaderVersion } = buildGeneralExec();
-    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand, } = buildStaticAnalysisExec();
+    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand } = buildStaticAnalysisExec();
     const platform = getPlatform(os);
     const filename = external_path_.join(__dirname, getUploaderName(platform));
     external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
@@ -24055,20 +24170,53 @@ try {
                         yield staticAnalysis();
                     }
                 })).catch((err) => {
-                    setFailure(`Codecov:
-                      Failed to properly create report: ${err.message}`, failCi);
+                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
             });
             const staticAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 yield exec.exec(getCommand(filename, args, staticAnalysisCommand).join(' '), staticAnalysisExecArgs, staticAnalysisOptions)
                     .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                     if (exitCode == 0) {
-                        core.info(`We did it!`);
+                        yield labelAnalysis();
                     }
                 })).catch((err) => {
-                    setFailure(`Codecov:
-                      Failed to properly create report: ${err.message}`, failCi);
+                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
+            });
+            const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
+                const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand } = yield buildLabelAnalysisExec();
+                let labelsSet = false;
+                core.info(`${labelAnalysisOptions.baseCommits}`);
+                for (const baseCommit of labelAnalysisOptions.baseCommits) {
+                    core.info(`Trying ${baseCommit}`);
+                    if (baseCommit != '') {
+                        const labelArgs = [...labelAnalysisExecArgs];
+                        labelArgs.push('--base-sha', `${baseCommit}`);
+                        let labels = '';
+                        labelAnalysisOptions.listeners = {
+                            stdout: (data) => {
+                                labels += data.toString();
+                            },
+                        };
+                        yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions)
+                            .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
+                            if (exitCode == 0) {
+                                labelsSet = true;
+                                const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
+                                core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
+                            }
+                        })).catch((err) => {
+                            core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
+                        });
+                        if (labelsSet) {
+                            break;
+                        }
+                    }
+                }
+                if (!labelsSet) {
+                    core.info(`Codecov: Could not find labels from commits: ${labelAnalysisOptions.baseCommits} Defaulting to run all tests.`);
+                    core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', '');
+                }
             });
             yield exec.exec(getCommand(filename, args, commitCommand).join(' '), commitExecArgs, commitOptions)
                 .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {

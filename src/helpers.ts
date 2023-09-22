@@ -1,4 +1,8 @@
 import * as core from '@actions/core';
+import * as github from '@actions/github';
+import childprocess from 'child_process';
+
+import {SPAWNPROCESSBUFFERSIZE} from './constants';
 
 const PLATFORMS = [
   'linux',
@@ -61,13 +65,60 @@ const getCommand = (
   return fullCommand;
 };
 
+const runExternalProgram = async (
+    programName: string,
+    optionalArguments: string[] = [],
+): Promise<string> => {
+  const result = await childprocess.spawnSync(
+      programName,
+      optionalArguments,
+      {maxBuffer: SPAWNPROCESSBUFFERSIZE},
+  );
+  if (result.error) {
+    throw new Error(`Error running external program: ${result.error}`);
+  }
+  return result.stdout.toString().trim();
+};
+
+const getParentCommit = async (): Promise<string> => {
+  const context = github.context;
+  let parentCommit = '';
+  if (context.eventName == 'pull_request') {
+    const currentCommit = context.payload.pull_request.head.sha;
+    parentCommit = await runExternalProgram(
+        'git',
+        ['rev-parse', `${currentCommit}^`],
+    ) || '';
+  } else {
+    parentCommit = await runExternalProgram(
+        'git',
+        ['rev-parse', `HEAD^`],
+    ) || '';
+  }
+  core.info(`Parent commit: ${parentCommit}`);
+  return parentCommit;
+};
+
+const getPRBaseCommit = (): string => {
+  const context = github.context;
+  if (context.eventName == 'pull_request') {
+    const baseSha = context.payload.pull_request.base.sha;
+    core.info(`PR Base commit: ${baseSha}`);
+    return baseSha;
+  }
+  return '';
+};
+
 export {
   PLATFORMS,
   getBaseUrl,
+  getCommand,
+  getPRBaseCommit,
+  getParentCommit,
   getPlatform,
   getUploaderName,
   isValidPlatform,
   isWindows,
+  runExternalProgram,
   setFailure,
-  getCommand,
 };
