@@ -21570,6 +21570,9 @@ var github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: external "child_process"
 var external_child_process_ = __nccwpck_require__(2081);
 var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
+;// CONCATENATED MODULE: ./src/constants.ts
+const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
+
 ;// CONCATENATED MODULE: ./src/helpers.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -21632,25 +21635,23 @@ const getCommand = (filename, generalArgs, command) => {
     return fullCommand;
 };
 const runExternalProgram = (programName, optionalArguments = []) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield childprocess.spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
+    const result = yield external_child_process_default().spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
     if (result.error) {
         throw new Error(`Error running external program: ${result.error}`);
     }
     return result.stdout.toString().trim();
 });
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
-    const buffer = yield external_child_process_default().spawnSync('git', ['rev-parse', 'HEAD^']);
-    core.info(`buffer ${buffer}`);
-    core.info(`stdout ${buffer.stdout}`);
-    core.info(`string ${buffer.stdout.toString()}`);
-    const parentCommit = buffer.stdout.toString().trim();
+    const parentCommit = (yield runExternalProgram('git', ['rev-parse', 'HEAD^'])) || '';
     core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });
 const getPRBaseCommit = () => {
     const context = github.context;
     if (context.eventName == 'pull_request') {
-        return context.payload.pull_request.base.sha;
+        const baseSha = context.payload.pull_request.base.sha;
+        core.info(`PR Base commit: ${baseSha}`);
+        return baseSha;
     }
     return '';
 };

@@ -81,11 +81,10 @@ const runExternalProgram = async (
 };
 
 const getParentCommit = async (): Promise<string> => {
-  const buffer = await childprocess.spawnSync('git', ['rev-parse', 'HEAD^']);
-  core.info(`buffer ${buffer}`);
-  core.info(`stdout ${buffer.stdout}`);
-  core.info(`string ${buffer.stdout.toString()}`);
-  const parentCommit = buffer.stdout.toString().trim();
+  const parentCommit = await runExternalProgram(
+      'git',
+      ['rev-parse', 'HEAD^'],
+  ) || '';
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
 };
@@ -93,7 +92,9 @@ const getParentCommit = async (): Promise<string> => {
 const getPRBaseCommit = (): string => {
   const context = github.context;
   if (context.eventName == 'pull_request') {
-    return context.payload.pull_request.base.sha;
+    const baseSha = context.payload.pull_request.base.sha;
+    core.info(`PR Base commit: ${baseSha}`);
+    return baseSha;
   }
   return '';
 };
