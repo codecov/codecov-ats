@@ -24141,7 +24141,7 @@ try {
     const { commitExecArgs, commitOptions, commitCommand } = buildCommitExec();
     const { reportExecArgs, reportOptions, reportCommand } = buildReportExec();
     const { args, failCi, os, verbose, uploaderVersion } = buildGeneralExec();
-    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand, } = buildStaticAnalysisExec();
+    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand } = buildStaticAnalysisExec();
     const platform = getPlatform(os);
     const filename = external_path_.join(__dirname, getUploaderName(platform));
     external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
@@ -24170,8 +24170,7 @@ try {
                         yield staticAnalysis();
                     }
                 })).catch((err) => {
-                    setFailure(`Codecov:
-                      Failed to properly create report: ${err.message}`, failCi);
+                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
             });
             const staticAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
@@ -24181,12 +24180,11 @@ try {
                         yield labelAnalysis();
                     }
                 })).catch((err) => {
-                    setFailure(`Codecov:
-                      Failed to properly create report: ${err.message}`, failCi);
+                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
             });
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
-                const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
+                const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand } = yield buildLabelAnalysisExec();
                 let labelsSet = false;
                 core.info(`${labelAnalysisOptions.baseCommits}`);
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
@@ -24200,15 +24198,15 @@ try {
                                 labels += data.toString();
                             },
                         };
-                        yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
+                        yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions)
+                            .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                             if (exitCode == 0) {
                                 labelsSet = true;
                                 const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
                                 core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
                             }
                         })).catch((err) => {
-                            core.warning(`Codecov:
-                      Failed to properly retrieve labels: ${err.message}`);
+                            core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
                         });
                         if (labelsSet) {
                             break;
@@ -24216,9 +24214,7 @@ try {
                     }
                 }
                 if (!labelsSet) {
-                    core.info(`Codecov: Could not find labels from commits:
-                  ${labelAnalysisOptions.baseCommits}
-                  Defaulting to run all tests.`);
+                    core.info(`Codecov: Could not find labels from commits: ${labelAnalysisOptions.baseCommits} Defaulting to run all tests.`);
                     core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', '');
                 }
             });

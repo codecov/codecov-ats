@@ -29,11 +29,7 @@ try {
   const {commitExecArgs, commitOptions, commitCommand} = buildCommitExec();
   const {reportExecArgs, reportOptions, reportCommand} = buildReportExec();
   const {args, failCi, os, verbose, uploaderVersion} = buildGeneralExec();
-  const {
-    staticAnalysisExecArgs,
-    staticAnalysisOptions,
-    staticAnalysisCommand,
-  } = buildStaticAnalysisExec();
+  const {staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand} = buildStaticAnalysisExec();
 
   const platform = getPlatform(os);
 
@@ -58,53 +54,32 @@ try {
           const unlink = () => {
             fs.unlink(filename, (err) => {
               if (err) {
-                setFailure(
-                    `Codecov: Could not unlink uploader: ${err.message}`,
-                    failCi,
-                );
+                setFailure(`Codecov: Could not unlink uploader: ${err.message}`, failCi);
               }
             });
           };
           const createReport = async () => {
-            await exec.exec(
-                getCommand(filename, args, reportCommand).join(' '),
-                reportExecArgs,
-                reportOptions)
+            await exec.exec(getCommand(filename, args, reportCommand).join(' '), reportExecArgs, reportOptions)
                 .then(async (exitCode) => {
                   if (exitCode == 0) {
                     await staticAnalysis();
                   }
                 }).catch((err) => {
-                  setFailure(
-                      `Codecov:
-                      Failed to properly create report: ${err.message}`,
-                      failCi,
-                  );
+                  setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
           };
           const staticAnalysis = async () => {
-            await exec.exec(
-                getCommand(filename, args, staticAnalysisCommand).join(' '),
-                staticAnalysisExecArgs,
-                staticAnalysisOptions)
+            await exec.exec(getCommand(filename, args, staticAnalysisCommand).join(' '), staticAnalysisExecArgs, staticAnalysisOptions)
                 .then(async (exitCode) => {
                   if (exitCode == 0) {
                     await labelAnalysis();
                   }
                 }).catch((err) => {
-                  setFailure(
-                      `Codecov:
-                      Failed to properly create report: ${err.message}`,
-                      failCi,
-                  );
+                  setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
                 });
           };
           const labelAnalysis = async () => {
-            const {
-              labelAnalysisExecArgs,
-              labelAnalysisOptions,
-              labelAnalysisCommand,
-            } = await buildLabelAnalysisExec();
+            const {labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand} = await buildLabelAnalysisExec();
             let labelsSet = false;
 
             core.info(`${labelAnalysisOptions.baseCommits}`);
@@ -112,10 +87,7 @@ try {
               core.info(`Trying ${baseCommit}`);
               if (baseCommit != '') {
                 const labelArgs = [...labelAnalysisExecArgs];
-                labelArgs.push(
-                    '--base-sha',
-                    `${baseCommit}`,
-                );
+                labelArgs.push('--base-sha', `${baseCommit}`);
 
                 let labels = '';
                 labelAnalysisOptions.listeners = {
@@ -124,29 +96,16 @@ try {
                   },
                 };
 
-                await exec.exec(
-                    getCommand(filename, args, labelAnalysisCommand).join(' '),
-                    labelArgs,
-                    labelAnalysisOptions,
-                ).then(async (exitCode) => {
-                  if (exitCode == 0) {
-                    labelsSet = true;
-                    const tests = labels.replace(
-                        'ATS_TESTS_TO_RUN=', '',
-                    ).replaceAll(
-                        '"', '',
-                    );
-                    core.exportVariable(
-                        'CODECOV_ATS_TESTS_TO_RUN',
-                        tests,
-                    );
-                  }
-                }).catch((err) => {
-                  core.warning(
-                      `Codecov:
-                      Failed to properly retrieve labels: ${err.message}`,
-                  );
-                });
+                await exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions)
+                    .then(async (exitCode) => {
+                      if (exitCode == 0) {
+                        labelsSet = true;
+                        const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
+                        core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
+                      }
+                    }).catch((err) => {
+                      core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
+                    });
 
                 if (labelsSet) {
                   break;
@@ -154,34 +113,18 @@ try {
               }
             }
             if (!labelsSet) {
-              core.info(
-                  `Codecov: Could not find labels from commits:
-                  ${labelAnalysisOptions.baseCommits}
-                  Defaulting to run all tests.`,
-              );
-              core.exportVariable(
-                  'CODECOV_ATS_TESTS_TO_RUN',
-                  '',
-              );
+              core.info(`Codecov: Could not find labels from commits: ${labelAnalysisOptions.baseCommits} Defaulting to run all tests.`);
+              core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', '');
             }
           };
-          await exec.exec(
-              getCommand(
-                  filename,
-                  args,
-                  commitCommand,
-              ).join(' '),
-              commitExecArgs, commitOptions)
+          await exec.exec(getCommand(filename, args, commitCommand).join(' '), commitExecArgs, commitOptions)
               .then(async (exitCode) => {
                 if (exitCode == 0) {
                   await createReport();
                 }
                 unlink();
               }).catch((err) => {
-                setFailure(
-                    `Codecov: Failed to properly create commit: ${err.message}`,
-                    failCi,
-                );
+                setFailure(`Codecov: Failed to properly create commit: ${err.message}`, failCi);
               });
         });
   });
