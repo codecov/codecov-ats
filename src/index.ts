@@ -107,7 +107,9 @@ try {
             } = await buildLabelAnalysisExec();
             core.info(`${labelAnalysisOptions}`);
 
-            labelAnalysisOptions.baseCommits.push('fake');
+            labelAnalysisOptions.baseCommits.push(
+                'aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee',
+            );
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
                 const labelArgs = [...labelAnalysisExecArgs];
