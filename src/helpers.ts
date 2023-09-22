@@ -82,11 +82,19 @@ const runExternalProgram = async (
 
 const getParentCommit = async (): Promise<string> => {
   const context = github.context;
-  const currentCommit = context.payload.pull_request.head.sha;
-  const parentCommit = await runExternalProgram(
-      'git',
-      ['rev-parse', `${currentCommit}^`],
-  ) || '';
+  let parentCommit = '';
+  if (context.eventName == 'pull_request') {
+    const currentCommit = context.payload.pull_request.head.sha;
+    parentCommit = await runExternalProgram(
+        'git',
+        ['rev-parse', `${currentCommit}^`],
+    ) || '';
+  } else {
+    parentCommit = await runExternalProgram(
+        'git',
+        ['rev-parse', `HEAD^`],
+    ) || '';
+  }
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
 };
