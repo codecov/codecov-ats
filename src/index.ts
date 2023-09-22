@@ -109,7 +109,7 @@ try {
 
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
-                const labelArgs = [...labelAnalysisExecArgs];
+                const labelArgs = ['fake', ...labelAnalysisExecArgs];
                 labelArgs.push(
                     '--base-sha',
                     `${baseCommit}`,
