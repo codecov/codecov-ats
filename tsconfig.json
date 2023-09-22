@@ -4,12 +4,13 @@
     "lib": [
       "ES2021.String"
     ],
+    "module": "es2022",
     "moduleResolution": "node",
     "outDir": "dist/",
     "resolveJsonModule": true,
     "rootDir": ".",
     "sourceMap": true,
-    "target": "es2015"
+    "target": "es2017"
   },
   "include": [
     "src/**/*.ts"
