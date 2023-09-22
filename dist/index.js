@@ -20832,40 +20832,46 @@ const getPRBaseCommit = () => {
 
 
 
-const runLabelAnalysis = async (args, failCi, filename) => {
-    const { execArgs, options, command } = await buildExec();
+const runLabelAnalysis = async (args, filename) => {
     let labelsSet = false;
+    const { execArgs, options, command } = await buildExec();
     core.info(`${options.baseCommits}`);
     for (const baseCommit of options.baseCommits) {
-        core.info(`Trying ${baseCommit}`);
-        if (baseCommit != '') {
-            const labelArgs = [...execArgs];
-            labelArgs.push('--base-sha', `${baseCommit}`);
-            let labels = '';
-            options.listeners = {
-                stdout: (data) => {
-                    labels += data.toString();
-                },
-            };
-            await exec.exec((0,utils/* getCommand */.hW)(filename, args, command).join(' '), labelArgs, options)
-                .then(async (exitCode) => {
-                if (exitCode == 0) {
-                    labelsSet = true;
-                    const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
-                    core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
-                }
-            }).catch((err) => {
-                core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
-            });
-            if (labelsSet) {
-                break;
-            }
+        const success = await runLabelAnalysisForCommit(execArgs, args, options, command, filename, baseCommit);
+        if (success) {
+            labelsSet = true;
+            break;
         }
     }
     if (!labelsSet) {
         core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
         core.exportVariable('CODECOV_ATS_LABELS', '');
     }
+};
+const runLabelAnalysisForCommit = async (execArgs, args, options, command, filename, baseCommit) => {
+    let labelsSet = false;
+    if (baseCommit == '') {
+        return false;
+    }
+    core.info(`Attempting label analysis on ${baseCommit}`);
+    const labelArgs = [...execArgs];
+    labelArgs.push('--base-sha', `${baseCommit}`);
+    let labels = '';
+    options.listeners = {
+        stdout: (data) => {
+            labels += data.toString();
+        },
+    };
+    await exec.exec((0,utils/* getCommand */.hW)(filename, args, command).join(' '), labelArgs, options)
+        .then(async (exitCode) => {
+        if (exitCode == 0) {
+            labelsSet = true;
+            core.exportVariable('CODECOV_ATS_LABELS', labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''));
+        }
+    }).catch((err) => {
+        core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
+    });
+    return labelsSet;
 };
 const buildExec = async () => {
     const overrideCommit = core.getInput('override_commit');
@@ -23446,7 +23452,7 @@ try {
     await (0,_commands_runCreateCommit__WEBPACK_IMPORTED_MODULE_0__/* ["default"] */ .Z)(args, failCi, filename);
     await (0,_commands_runCreateReport__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .Z)(args, failCi, filename);
     await (0,_commands_runStaticAnalysis__WEBPACK_IMPORTED_MODULE_3__/* ["default"] */ .Z)(args, failCi, filename);
-    await (0,_commands_runLabelAnalysis__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .Z)(args, failCi, filename);
+    await (0,_commands_runLabelAnalysis__WEBPACK_IMPORTED_MODULE_2__/* ["default"] */ .Z)(args, filename);
     (0,_helpers_utils__WEBPACK_IMPORTED_MODULE_5__/* .unlink */ .qB)(filename, failCi);
 }
 catch (err) {

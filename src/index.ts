@@ -12,7 +12,7 @@ try {
   await runCreateCommit(args, failCi, filename);
   await runCreateReport(args, failCi, filename);
   await runStaticAnalysis(args, failCi, filename);
-  await runLabelAnalysis(args, failCi, filename);
+  await runLabelAnalysis(args, filename);
   unlink(filename, failCi);
 } catch (err) {
   setFailure(`Codecov: Encountered an unexpected error ${err.message}`, failCi);
