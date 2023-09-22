@@ -137,7 +137,6 @@ try {
                         'CODECOV_ATS_TESTS_TO_RUN',
                         tests,
                     );
-                    core.info(`${tests}`);
                   }
                 }).catch((err) => {
                   setFailure(

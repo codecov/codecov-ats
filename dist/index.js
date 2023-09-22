@@ -21570,9 +21570,6 @@ var github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: external "child_process"
 var external_child_process_ = __nccwpck_require__(2081);
 var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
-;// CONCATENATED MODULE: ./src/constants.ts
-const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
-
 ;// CONCATENATED MODULE: ./src/helpers.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -21635,14 +21632,15 @@ const getCommand = (filename, generalArgs, command) => {
     return fullCommand;
 };
 const runExternalProgram = (programName, optionalArguments = []) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield external_child_process_default().spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
+    const result = yield childprocess.spawnSync(programName, optionalArguments, { maxBuffer: SPAWNPROCESSBUFFERSIZE });
     if (result.error) {
         throw new Error(`Error running external program: ${result.error}`);
     }
     return result.stdout.toString().trim();
 });
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
-    const parentCommit = (yield runExternalProgram('git', ['rev-parse', 'HEAD^'])) || '';
+    const commitBuffer = yield external_child_process_default().spawnSync('git', ['rev-parse', 'HEAD^']);
+    const parentCommit = commitBuffer.stdout.toString().trim();
     core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });
@@ -24192,7 +24190,6 @@ try {
                             if (exitCode == 0) {
                                 const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
                                 core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
-                                core.info(`${tests}`);
                             }
                         })).catch((err) => {
                             setFailure(`Codecov:

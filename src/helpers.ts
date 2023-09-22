@@ -81,10 +81,11 @@ const runExternalProgram = async (
 };
 
 const getParentCommit = async (): Promise<string> => {
-  const parentCommit = await runExternalProgram(
+  const commitBuffer = await childprocess.spawnSync(
       'git',
       ['rev-parse', 'HEAD^'],
-  ) || '';
+  );
+  const parentCommit = commitBuffer.stdout.toString().trim();
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
 };
