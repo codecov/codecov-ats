@@ -25,6 +25,9 @@ inputs:
   os:
     description: 'Override the assumed OS. Options are linux | macos | windows.'
     required: false
+  output_variable:
+    description: 'Variable to save down tests string. Defaults to CODECOV_ATS_TESTS'
+    required: false
   override_base_commit:
     description: 'Override the assumed base commit.'
     required: false
@@ -36,9 +39,6 @@ inputs:
     required: false
   version:
     description: 'Specify which version of the Codecov CLI should be used. Defaults to `latest`'
-    required: false
-  test_output_path:
-    description: 'Temporary file where label analysis tests will be saved to. Defaults to ./tmp-codecov-labels'
     required: false
 
 branding:

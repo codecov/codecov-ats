@@ -21,7 +21,7 @@ const runLabelAnalysis = async (args, filename) => {
 
   if (!labelsSet) {
     core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
-    core.exportVariable('CODECOV_ATS_LABELS', '');
+    core.exportVariable(options.outputVariable, '');
   }
 };
 
@@ -47,7 +47,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
         if (exitCode == 0) {
           labelsSet = true;
           core.exportVariable(
-              'CODECOV_ATS_LABELS',
+              options.outputVariable,
               labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''),
           );
         }
@@ -58,6 +58,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
 };
 
 const buildExec = async () => {
+  const outputVariable = core.getInput('output_variable');
   const overrideCommit = core.getInput('override_commit');
   const overrideBaseCommit = core.getInput('override_base_commit');
   const maxWaitTime = core.getInput('max_wait_time');
@@ -77,6 +78,11 @@ const buildExec = async () => {
     GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
   });
 
+  if (outputVariable) {
+    options.outputVariable = outputVariable;
+  } else {
+    options.outputVariable = 'CODECOV_ATS_TESTS';
+  }
   if (staticToken) {
     options.env.CODECOV_STATIC_TOKEN = staticToken;
   }
