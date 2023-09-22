@@ -24187,7 +24187,6 @@ try {
             });
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
-                core.info(`${labelAnalysisOptions}`);
                 labelAnalysisOptions.baseCommits.push('aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee');
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
@@ -24205,8 +24204,8 @@ try {
                                 core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
                             }
                         })).catch((err) => {
-                            setFailure(`Codecov:
-                      Failed to properly retrieve labels: ${err.message}`, failCi);
+                            core.warning(`Codecov:,
+                      Failed to properly retrieve labels: ${err.message}`);
                         });
                     }
                 }

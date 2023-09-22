@@ -105,8 +105,6 @@ try {
               labelAnalysisOptions,
               labelAnalysisCommand,
             } = await buildLabelAnalysisExec();
-            core.info(`${labelAnalysisOptions}`);
-
             labelAnalysisOptions.baseCommits.push(
                 'aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee',
             );
@@ -142,10 +140,9 @@ try {
                     );
                   }
                 }).catch((err) => {
-                  setFailure(
-                      `Codecov:
+                  core.warning(
+                      `Codecov:,
                       Failed to properly retrieve labels: ${err.message}`,
-                      failCi,
                   );
                 });
               }
