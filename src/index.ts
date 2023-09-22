@@ -112,7 +112,7 @@ try {
                 const labelArgs = [...labelAnalysisExecArgs];
                 labelArgs.push(
                     '--base-sha',
-                    '4abb01826b01e2693b469c51589fb6c2045d6ede',
+                    `${baseCommit}`,
                 );
 
                 let labels = '';

@@ -21642,16 +21642,14 @@ const runExternalProgram = (programName, optionalArguments = []) => __awaiter(vo
     return result.stdout.toString().trim();
 });
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
-    const parentCommit = (yield runExternalProgram('git', ['rev-parse', 'HEAD^'])) || '';
+    const context = github.context;
+    const currentCommit = context.payload.pull_request.head.sha;
+    const parentCommit = (yield runExternalProgram('git', ['rev-parse', `${currentCommit}`])) || '';
     core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });
 const getPRBaseCommit = () => {
     const context = github.context;
-    core.info(`context eventName ${context.eventName}`);
-    core.info(`context payload ${context.payload}`);
-    core.info(`context payload pull_request ${context.payload.pull_request}`);
-    core.info(`context payload pr base ${context.payload.pull_request.base}`);
     if (context.eventName == 'pull_request') {
         const baseSha = context.payload.pull_request.base.sha;
         core.info(`PR Base commit: ${baseSha}`);
@@ -24187,7 +24185,7 @@ try {
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
                         const labelArgs = [...labelAnalysisExecArgs];
-                        labelArgs.push('--base-sha', '4abb01826b01e2693b469c51589fb6c2045d6ede');
+                        labelArgs.push('--base-sha', `${baseCommit}`);
                         let labels = '';
                         labelAnalysisOptions.listeners = {
                             stdout: (data) => {
