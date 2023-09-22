@@ -54,26 +54,27 @@ const getCli = async (): Promise<CliArgs> => {
   const platform = getPlatform(os);
 
   const filename = path.join( __dirname, getCliName(platform));
-  await https.get(getBaseUrl(platform, uploaderVersion), (res) => {
-    // Image will be stored at this path
-    const filePath = fs.createWriteStream(filename);
-    res.pipe(filePath);
-    filePath
-        .on('error', (err) => {
-          setFailure(
-              `Codecov: Failed to write uploader binary: ${err.message}`,
-              true,
-          );
-        }).on('finish', async () => {
-          filePath.close();
+  return new Promise((resolve, reject) => {
+    https.get(getBaseUrl(platform, uploaderVersion), (res) => {
+      // Image will be stored at this path
+      const filePath = fs.createWriteStream(filename);
+      res.pipe(filePath);
+      filePath
+          .on('error', (err) => {
+            reject(setFailure(
+                `Codecov: Failed to write uploader binary: ${err.message}`,
+                true,
+            ));
+          }).on('finish', async () => {
+            filePath.close();
 
-          await verify(filename, platform, uploaderVersion, verbose, failCi);
-          await versionInfo(platform, uploaderVersion);
-          await fs.chmodSync(filename, '777');
-          return {args, failCi, filename};
-        });
+            await verify(filename, platform, uploaderVersion, verbose, failCi);
+            await versionInfo(platform, uploaderVersion);
+            await fs.chmodSync(filename, '777');
+            return resolve({args, failCi, filename});
+          });
+    });
   });
-  return {args, failCi, filename};
 };
 
 export default getCli;

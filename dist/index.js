@@ -23319,22 +23319,23 @@ const getCli = async () => {
     const { args, failCi, os, verbose, uploaderVersion } = helpers_buildExec();
     const platform = getPlatform(os);
     const filename = external_path_.join(__dirname, getCliName(platform));
-    await external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
-        // Image will be stored at this path
-        const filePath = external_fs_.createWriteStream(filename);
-        res.pipe(filePath);
-        filePath
-            .on('error', (err) => {
-            (0,utils/* setFailure */.MZ)(`Codecov: Failed to write uploader binary: ${err.message}`, true);
-        }).on('finish', async () => {
-            filePath.close();
-            await validate(filename, platform, uploaderVersion, verbose, failCi);
-            await version(platform, uploaderVersion);
-            await external_fs_.chmodSync(filename, '777');
-            return { args, failCi, filename };
+    return new Promise((resolve, reject) => {
+        external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
+            // Image will be stored at this path
+            const filePath = external_fs_.createWriteStream(filename);
+            res.pipe(filePath);
+            filePath
+                .on('error', (err) => {
+                reject((0,utils/* setFailure */.MZ)(`Codecov: Failed to write uploader binary: ${err.message}`, true));
+            }).on('finish', async () => {
+                filePath.close();
+                await validate(filename, platform, uploaderVersion, verbose, failCi);
+                await version(platform, uploaderVersion);
+                await external_fs_.chmodSync(filename, '777');
+                return resolve({ args, failCi, filename });
+            });
         });
     });
-    return { args, failCi, filename };
 };
 /* harmony default export */ const cli = (getCli);
 
