@@ -1,7 +1,7 @@
 # codecov-ats
 GitHub Action that uploads returns selected test labels to CI ☂️
 
-This Action is currently in beta. Currently, it has only been tested on `linux` builds using `python` and `pytest`.
+This Action is currently in beta. Currently, it has only been tested on `linux` and `macos` builds using `python` and `pytest`.
 
 If you have feedback or issues with running this action, please don't hesitate to let us know by creating a Github Issue against this repo.
 
