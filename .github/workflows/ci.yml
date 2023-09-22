@@ -44,7 +44,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Run Tests and collect coverage
-        run: pytest --cov app ${{ env.CODECOV_ATS_LABELS }}
+        run: pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
