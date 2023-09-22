@@ -107,9 +107,10 @@ try {
             } = await buildLabelAnalysisExec();
             core.info(`${labelAnalysisOptions}`);
 
+            labelAnalysisOptions.baseCommits.push('fake');
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
               if (baseCommit != '') {
-                const labelArgs = ['fake', ...labelAnalysisExecArgs];
+                const labelArgs = [...labelAnalysisExecArgs];
                 labelArgs.push(
                     '--base-sha',
                     `${baseCommit}`,

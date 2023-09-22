@@ -24188,9 +24188,10 @@ try {
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
                 core.info(`${labelAnalysisOptions}`);
+                labelAnalysisOptions.baseCommits.push('fake');
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
                     if (baseCommit != '') {
-                        const labelArgs = ['fake', ...labelAnalysisExecArgs];
+                        const labelArgs = [...labelAnalysisExecArgs];
                         labelArgs.push('--base-sha', `${baseCommit}`);
                         let labels = '';
                         labelAnalysisOptions.listeners = {
