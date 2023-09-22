@@ -18,7 +18,7 @@ If you have feedback or issues with running this action, please don't hesitate t
 1. Add in `CODECOV_TOKEN` and `CODECOV_STATIC_TOKEN` secrets from the Codecov UI to GitHub.
 You can find the `CODECOV_STATIC_TOKEN` as the `Static analysis token`
 
-![Set the Static analysis token to CODECOV_STATIC_TOKEN in your repository secrets.](https://prod-files-secure.s3.us-west-2.amazonaws.com/bbfa457d-be3e-4cea-ac9c-9aff172f04f1/bc1b61c6-dd90-48df-b9a3-ec72b1970e6b/Untitled.png)
+Set the Static analysis token to `CODECOV_STATIC_TOKEN` in your repository secrets.
 
 Set the Static analysis token to CODECOV_STATIC_TOKEN in your repository secrets.
 
