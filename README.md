@@ -20,10 +20,6 @@ You can find the `CODECOV_STATIC_TOKEN` as the `Static analysis token`
 
 Set the Static analysis token to `CODECOV_STATIC_TOKEN` in your repository secrets.
 
-Set the Static analysis token to CODECOV_STATIC_TOKEN in your repository secrets.
-
-Your secrets page should look similar to this.
-
 1. Update your `codecov.yml` by adding the following
 
 ```yaml
