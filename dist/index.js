@@ -21644,7 +21644,7 @@ const runExternalProgram = (programName, optionalArguments = []) => __awaiter(vo
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
     const context = github.context;
     const currentCommit = context.payload.pull_request.head.sha;
-    const parentCommit = (yield runExternalProgram('git', ['rev-parse', `${currentCommit}`])) || '';
+    const parentCommit = (yield runExternalProgram('git', ['rev-parse', `${currentCommit}^`])) || '';
     core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });

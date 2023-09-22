@@ -85,7 +85,7 @@ const getParentCommit = async (): Promise<string> => {
   const currentCommit = context.payload.pull_request.head.sha;
   const parentCommit = await runExternalProgram(
       'git',
-      ['rev-parse', `${currentCommit}`],
+      ['rev-parse', `${currentCommit}^`],
   ) || '';
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
