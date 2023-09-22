@@ -1,7 +1,7 @@
 name: Workflow for Codecov Action
 on: [push, pull_request]
 jobs:
-  no-deps:
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -10,20 +10,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install python dependencies
-        run: pip install -r app/requirements.txt
-      - name: Run ATS (script)
-        uses: ./
-        with:
-          fail_ci_if_error: true
-          verbose: true
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint
+      - name: Run tests and collect coverage
+        run: npm run test
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4-beta
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
-          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
 
   run:
     runs-on: ${{ matrix.os }}
@@ -36,16 +32,6 @@ jobs:
         uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
-      - name: Echo things
-        run: |
-          echo $(git rev-parse HEAD^)
-          echo ${{ github.context.payload.pull_request }}
-      - name: Install dependencies
-        run: npm install
-      - name: Lint
-        run: npm run lint
-      - name: Run tests and collect coverage
-        run: npm run test
       - name: Install python
         uses: actions/setup-python@v4
         with:

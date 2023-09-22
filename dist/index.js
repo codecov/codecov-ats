@@ -21648,6 +21648,10 @@ const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 const getPRBaseCommit = () => {
     const context = github.context;
+    core.info(`context eventName ${context.eventName}`);
+    core.info(`context payload ${context.payload}`);
+    core.info(`context payload pull_request ${context.payload.pull_request}`);
+    core.info(`context payload pr base ${context.payload.pull_request.base}`);
     if (context.eventName == 'pull_request') {
         const baseSha = context.payload.pull_request.base.sha;
         core.info(`PR Base commit: ${baseSha}`);
