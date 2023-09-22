@@ -46,6 +46,10 @@ jobs:
           python-version: '3.10'
       - name: Install python dependencies
         run: pip install -r app/requirements.txt
+      - name: Echo things
+        run: |
+          git rev-parse HEAD^
+          echo ${{ github.context.payload.pull_request }}
       - name: Run ATS
         uses: ./
         with:

@@ -81,14 +81,11 @@ const runExternalProgram = async (
 };
 
 const getParentCommit = async (): Promise<string> => {
-  const commitBuffer = await childprocess.spawnSync(
-      'git',
-      ['rev-parse', 'HEAD^'],
-  );
-  core.info(`buffer ${commitBuffer}`);
-  core.info(`stdout ${commitBuffer.stdout}`);
-  core.info(`string ${commitBuffer.stdout.toString()}`);
-  const parentCommit = commitBuffer.stdout.toString().trim();
+  const buffer = await childprocess.spawnSync('git', ['rev-parse', 'HEAD^']);
+  core.info(`buffer ${buffer}`);
+  core.info(`stdout ${buffer.stdout}`);
+  core.info(`string ${buffer.stdout.toString()}`);
+  const parentCommit = buffer.stdout.toString().trim();
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
 };

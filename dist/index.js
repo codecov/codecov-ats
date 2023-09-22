@@ -21639,11 +21639,11 @@ const runExternalProgram = (programName, optionalArguments = []) => __awaiter(vo
     return result.stdout.toString().trim();
 });
 const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
-    const commitBuffer = yield external_child_process_default().spawnSync('git', ['rev-parse', 'HEAD^']);
-    core.info(`buffer ${commitBuffer}`);
-    core.info(`stdout ${commitBuffer.stdout}`);
-    core.info(`string ${commitBuffer.stdout.toString()}`);
-    const parentCommit = commitBuffer.stdout.toString().trim();
+    const buffer = yield external_child_process_default().spawnSync('git', ['rev-parse', 'HEAD^']);
+    core.info(`buffer ${buffer}`);
+    core.info(`stdout ${buffer.stdout}`);
+    core.info(`string ${buffer.stdout.toString()}`);
+    const parentCommit = buffer.stdout.toString().trim();
     core.info(`Parent commit: ${parentCommit}`);
     return parentCommit;
 });
