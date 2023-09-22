@@ -1,16 +1,19 @@
 import {
+  afterAll,
+  beforeEach,
+  expect,
+  test,
+} from 'vitest';
+
+import {
   getBaseUrl,
   getPlatform,
-  isValidPlatform,
-  isWindows,
-  PLATFORMS,
-  getCommand,
-} from './helpers';
+} from '../../src/helpers/cli';
+import {PLATFORMS} from '../../src/helpers/constants';
 
 let OLDOS = process.env.RUNNER_OS;
 
 beforeEach(() => {
-  jest.resetModules();
   OLDOS = process.env.RUNNER_OS;
 });
 
@@ -46,29 +49,10 @@ test('getBaseUrl', () => {
   ]);
 
   expect(PLATFORMS.map((platform) => {
-    return getBaseUrl(platform, 'v0.1.0_8880');
+    return getBaseUrl(platform, 'v0.3.02');
   })).toEqual([
-    'https://cli.codecov.io/v0.1.0_8880/linux/codecov',
-    'https://cli.codecov.io/v0.1.0_8880/macos/codecov',
-    'https://cli.codecov.io/v0.1.0_8880/windows/codecov.exe',
+    'https://cli.codecov.io/v0.3.02/linux/codecov',
+    'https://cli.codecov.io/v0.3.02/macos/codecov',
+    'https://cli.codecov.io/v0.3.02/windows/codecov.exe',
   ]);
-});
-
-test('isWindows', () => {
-  expect(PLATFORMS.map((platform) => {
-    return isWindows(platform);
-  })).toEqual([false, false, true]);
-});
-
-test('isValidPlatform', () => {
-  expect(PLATFORMS.map((platform) => {
-    return isValidPlatform(platform);
-  })).toEqual([true, true, true]);
-
-  expect(isValidPlatform('fakeos')).toBeFalsy();
-});
-
-test('getCommand', () => {
-  expect(getCommand('path', ['-v', '-x'], 'do-upload'))
-      .toEqual(['path', '-v', '-x', 'do-upload']);
 });

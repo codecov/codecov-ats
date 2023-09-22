@@ -21555,25 +21555,27 @@ var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(7147);
-// EXTERNAL MODULE: external "https"
-var external_https_ = __nccwpck_require__(5687);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(1017);
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(1514);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
 // EXTERNAL MODULE: external "child_process"
 var external_child_process_ = __nccwpck_require__(2081);
 var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
-;// CONCATENATED MODULE: ./src/constants.ts
+;// CONCATENATED MODULE: ./src/helpers/constants.ts
+const PLATFORMS = [
+    'linux',
+    'macos',
+    'windows',
+];
 const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
 
-;// CONCATENATED MODULE: ./src/helpers.ts
+
+;// CONCATENATED MODULE: ./src/helpers/utils.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -21587,47 +21589,19 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 
 
-const PLATFORMS = [
-    'linux',
-    'macos',
-    'windows',
-];
+const isTrue = (variable) => {
+    const lowercase = variable.toLowerCase();
+    return (lowercase === '1' ||
+        lowercase === 't' ||
+        lowercase === 'true' ||
+        lowercase === 'y' ||
+        lowercase === 'yes');
+};
 const setFailure = (message, failCi) => {
     failCi ? core.setFailed(message) : core.warning(message);
     if (failCi) {
         process.exit();
     }
-};
-const getUploaderName = (platform) => {
-    if (isWindows(platform)) {
-        return 'codecov.exe';
-    }
-    else {
-        return 'codecov';
-    }
-};
-const isValidPlatform = (platform) => {
-    return PLATFORMS.includes(platform);
-};
-const isWindows = (platform) => {
-    return platform === 'windows';
-};
-const getPlatform = (os) => {
-    var _a;
-    if (isValidPlatform(os)) {
-        core.info(`==> ${os} OS provided`);
-        return os;
-    }
-    const platform = (_a = process.env.RUNNER_OS) === null || _a === void 0 ? void 0 : _a.toLowerCase();
-    if (isValidPlatform(platform)) {
-        core.info(`==> ${platform} OS detected`);
-        return platform;
-    }
-    core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
-    return 'linux';
-};
-const getBaseUrl = (platform, version) => {
-    return `https://cli.codecov.io/${version}/${platform}/${getUploaderName(platform)}`;
 };
 const getCommand = (filename, generalArgs, command) => {
     const fullCommand = [filename, ...generalArgs, command];
@@ -21641,7 +21615,160 @@ const runExternalProgram = (programName, optionalArguments = []) => __awaiter(vo
     }
     return result.stdout.toString().trim();
 });
-const getParentCommit = () => __awaiter(void 0, void 0, void 0, function* () {
+const unlink = (filename, failCi) => {
+    external_fs_.unlink(filename, (err) => {
+        if (err) {
+            setFailure(`Codecov: Could not unlink uploader: ${err.message}`, failCi);
+        }
+    });
+};
+
+
+;// CONCATENATED MODULE: ./src/commands/runCreateCommit.ts
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+var runCreateCommit_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+const runCreateCommit = (args, failCi, filename) => runCreateCommit_awaiter(void 0, void 0, void 0, function* () {
+    const { execArgs, options, command } = buildExec();
+    yield exec.exec(getCommand(filename, args, command).join(' '), execArgs, options)
+        .then((exitCode) => runCreateCommit_awaiter(void 0, void 0, void 0, function* () {
+        if (exitCode != 0) {
+            core.warning(`Codecov: ${command} exited with status: ${exitCode}`);
+        }
+    })).catch((err) => {
+        setFailure(`Codecov: Failed to properly create : ${err.message}`, failCi);
+    });
+});
+const buildExec = () => {
+    const commitParent = core.getInput('commit_parent');
+    const overrideBranch = core.getInput('override_branch');
+    const overrideCommit = core.getInput('override_commit');
+    const overridePr = core.getInput('override_pr');
+    const slug = core.getInput('slug');
+    const token = core.getInput('token');
+    const command = 'create-commit';
+    const execArgs = [];
+    const options = {};
+    options.env = Object.assign(process.env, {
+        GITHUB_ACTION: process.env.GITHUB_ACTION,
+        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+        GITHUB_REF: process.env.GITHUB_REF,
+        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+        GITHUB_SHA: process.env.GITHUB_SHA,
+        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
+    });
+    if (token) {
+        options.env.CODECOV_TOKEN = token;
+    }
+    if (commitParent) {
+        execArgs.push('--parent-sha', `${commitParent}`);
+    }
+    if (overrideBranch) {
+        execArgs.push('-B', `${overrideBranch}`);
+    }
+    if (overrideCommit) {
+        execArgs.push('-C', `${overrideCommit}`);
+    }
+    else if (`${github.context.eventName}` == 'pull_request' ||
+        `${github.context.eventName}` == 'pull_request_target') {
+        execArgs.push('-C', `${github.context.payload.pull_request.head.sha}`);
+    }
+    if (overridePr) {
+        execArgs.push('--pr', `${overridePr}`);
+    }
+    else if (`${github.context.eventName}` == 'pull_request_target') {
+        execArgs.push('--pr', `${github.context.payload.number}`);
+    }
+    if (slug) {
+        execArgs.push('--slug', `${slug}`);
+    }
+    return { execArgs, options, command };
+};
+/* harmony default export */ const commands_runCreateCommit = (runCreateCommit);
+
+;// CONCATENATED MODULE: ./src/commands/runCreateReport.ts
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+var runCreateReport_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+const runCreateReport = (args, failCi, filename) => runCreateReport_awaiter(void 0, void 0, void 0, function* () {
+    const { execArgs, options, command } = runCreateReport_buildExec();
+    yield exec.exec(getCommand(filename, args, command).join(' '), execArgs, options)
+        .then((exitCode) => runCreateReport_awaiter(void 0, void 0, void 0, function* () {
+        if (exitCode != 0) {
+            core.warning(`Codecov: ${command} exited with status: ${exitCode}`);
+        }
+    })).catch((err) => {
+        setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
+    });
+});
+const runCreateReport_buildExec = () => {
+    const overrideCommit = core.getInput('override_commit');
+    const slug = core.getInput('slug');
+    const token = core.getInput('token');
+    const command = 'create-report';
+    const execArgs = [];
+    const options = {};
+    options.env = Object.assign(process.env, {
+        GITHUB_ACTION: process.env.GITHUB_ACTION,
+        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+        GITHUB_REF: process.env.GITHUB_REF,
+        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+        GITHUB_SHA: process.env.GITHUB_SHA,
+        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
+    });
+    if (token) {
+        options.env.CODECOV_TOKEN = token;
+    }
+    if (overrideCommit) {
+        execArgs.push('-C', `${overrideCommit}`);
+    }
+    else if (`${github.context.eventName}` == 'pull_request' ||
+        `${github.context.eventName}` == 'pull_request_target') {
+        execArgs.push('-C', `${github.context.payload.pull_request.head.sha}`);
+    }
+    if (slug) {
+        execArgs.push('--slug', `${slug}`);
+    }
+    return { execArgs, options, command };
+};
+/* harmony default export */ const commands_runCreateReport = (runCreateReport);
+
+;// CONCATENATED MODULE: ./src/helpers/git.ts
+var git_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+const getParentCommit = () => git_awaiter(void 0, void 0, void 0, function* () {
     const context = github.context;
     let parentCommit = '';
     if (context.eventName == 'pull_request') {
@@ -21665,9 +21792,9 @@ const getPRBaseCommit = () => {
 };
 
 
-;// CONCATENATED MODULE: ./src/buildExec.ts
+;// CONCATENATED MODULE: ./src/commands/runLabelAnalysis.ts
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-var buildExec_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+var runLabelAnalysis_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -21679,26 +21806,53 @@ var buildExec_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 
 
 
-const context = github.context;
-const isTrue = (variable) => {
-    const lowercase = variable.toLowerCase();
-    return (lowercase === '1' ||
-        lowercase === 't' ||
-        lowercase === 'true' ||
-        lowercase === 'y' ||
-        lowercase === 'yes');
-};
-const buildCommitExec = () => {
-    const commitParent = core.getInput('commit_parent');
-    const overrideBranch = core.getInput('override_branch');
+
+
+const runLabelAnalysis = (args, failCi, filename) => runLabelAnalysis_awaiter(void 0, void 0, void 0, function* () {
+    const { execArgs, options, command } = yield runLabelAnalysis_buildExec();
+    let labelsSet = false;
+    core.info(`${options.baseCommits}`);
+    for (const baseCommit of options.baseCommits) {
+        core.info(`Trying ${baseCommit}`);
+        if (baseCommit != '') {
+            const labelArgs = [...execArgs];
+            labelArgs.push('--base-sha', `${baseCommit}`);
+            let labels = '';
+            options.listeners = {
+                stdout: (data) => {
+                    labels += data.toString();
+                },
+            };
+            yield exec.exec(getCommand(filename, args, command).join(' '), labelArgs, options)
+                .then((exitCode) => runLabelAnalysis_awaiter(void 0, void 0, void 0, function* () {
+                if (exitCode == 0) {
+                    labelsSet = true;
+                    const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
+                    core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
+                }
+            })).catch((err) => {
+                core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
+            });
+            if (labelsSet) {
+                break;
+            }
+        }
+    }
+    if (!labelsSet) {
+        core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
+        core.exportVariable('CODECOV_ATS_LABELS', '');
+    }
+});
+const runLabelAnalysis_buildExec = () => runLabelAnalysis_awaiter(void 0, void 0, void 0, function* () {
     const overrideCommit = core.getInput('override_commit');
-    const overridePr = core.getInput('override_pr');
-    const slug = core.getInput('slug');
-    const token = core.getInput('token');
-    const commitCommand = 'create-commit';
-    const commitExecArgs = [];
-    const commitOptions = {};
-    commitOptions.env = Object.assign(process.env, {
+    const overrideBaseCommit = core.getInput('override_base_commit');
+    const maxWaitTime = core.getInput('max_wait_time');
+    const testOutputPath = core.getInput('test_output_path');
+    const staticToken = core.getInput('static_token');
+    const command = 'label-analysis';
+    const execArgs = ['--dry-run'];
+    const options = {};
+    options.env = Object.assign(process.env, {
         GITHUB_ACTION: process.env.GITHUB_ACTION,
         GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
         GITHUB_REF: process.env.GITHUB_REF,
@@ -21706,34 +21860,112 @@ const buildCommitExec = () => {
         GITHUB_SHA: process.env.GITHUB_SHA,
         GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
     });
-    if (token) {
-        commitOptions.env.CODECOV_TOKEN = token;
-    }
-    if (commitParent) {
-        commitExecArgs.push('--parent-sha', `${commitParent}`);
-    }
-    if (overrideBranch) {
-        commitExecArgs.push('-B', `${overrideBranch}`);
+    if (staticToken) {
+        options.env.CODECOV_STATIC_TOKEN = staticToken;
     }
     if (overrideCommit) {
-        commitExecArgs.push('-C', `${overrideCommit}`);
+        execArgs.push('-C', `${overrideCommit}`);
     }
-    else if (`${context.eventName}` == 'pull_request' ||
-        `${context.eventName}` == 'pull_request_target') {
-        commitExecArgs.push('-C', `${context.payload.pull_request.head.sha}`);
+    else if (`${github.context.eventName}` == 'pull_request' ||
+        `${github.context.eventName}` == 'pull_request_target') {
+        execArgs.push('--head-sha', `${github.context.payload.pull_request.head.sha}`);
     }
-    if (overridePr) {
-        commitExecArgs.push('--pr', `${overridePr}`);
+    if (overrideBaseCommit) {
+        options.baseCommits = [overrideBaseCommit];
     }
-    else if (`${context.eventName}` == 'pull_request_target') {
-        commitExecArgs.push('--pr', `${context.payload.number}`);
+    else {
+        const parentCommit = yield getParentCommit();
+        const prBaseCommit = getPRBaseCommit();
+        options.baseCommits = [parentCommit, prBaseCommit];
     }
-    if (slug) {
-        commitExecArgs.push('--slug', `${slug}`);
+    if (maxWaitTime) {
+        execArgs.push('--max-wait-time', `${maxWaitTime}`);
     }
-    return { commitExecArgs, commitOptions, commitCommand };
+    if (testOutputPath) {
+        options.testOutputPath = testOutputPath;
+    }
+    else {
+        options.testOutputPath = 'tmp-codecov-labels';
+    }
+    return { execArgs, options, command };
+});
+/* harmony default export */ const commands_runLabelAnalysis = (runLabelAnalysis);
+
+;// CONCATENATED MODULE: ./src/commands/runStaticAnalysis.ts
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+var runStaticAnalysis_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-const buildGeneralExec = () => {
+
+
+
+
+const runStaticAnalysis = (args, failCi, filename) => runStaticAnalysis_awaiter(void 0, void 0, void 0, function* () {
+    const { execArgs, options, command } = runStaticAnalysis_buildExec();
+    yield exec.exec(getCommand(filename, args, command).join(' '), execArgs, options)
+        .then((exitCode) => runStaticAnalysis_awaiter(void 0, void 0, void 0, function* () {
+        if (exitCode != 0) {
+            core.warning(`Codecov: ${command} exited with status: ${exitCode}`);
+        }
+    })).catch((err) => {
+        setFailure(`Codecov: Failed to properly create : ${err.message}`, failCi);
+    });
+});
+const runStaticAnalysis_buildExec = () => {
+    const filePattern = core.getInput('file_pattern');
+    const foldersToExclude = core.getInput('folders_to_exclude');
+    const force = core.getInput('force');
+    const overrideCommit = core.getInput('override_commit');
+    const staticToken = core.getInput('static_token');
+    const command = 'static-analysis';
+    const execArgs = [];
+    const options = {};
+    options.env = Object.assign(process.env, {
+        GITHUB_ACTION: process.env.GITHUB_ACTION,
+        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
+        GITHUB_REF: process.env.GITHUB_REF,
+        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
+        GITHUB_SHA: process.env.GITHUB_SHA,
+        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
+    });
+    if (staticToken) {
+        options.env.CODECOV_STATIC_TOKEN = staticToken;
+    }
+    if (filePattern) {
+        execArgs.push('--pattern', `${filePattern}`);
+    }
+    if (foldersToExclude) {
+        execArgs.push('--folders-to-exclude', `${foldersToExclude}`);
+    }
+    if (force) {
+        execArgs.push('--force');
+    }
+    if (overrideCommit) {
+        execArgs.push('-C', `${overrideCommit}`);
+    }
+    else if (`${github.context.eventName}` == 'pull_request' ||
+        `${github.context.eventName}` == 'pull_request_target') {
+        execArgs.push('--commit-sha', `${github.context.payload.pull_request.head.sha}`);
+    }
+    return { execArgs, options, command };
+};
+/* harmony default export */ const commands_runStaticAnalysis = (runStaticAnalysis);
+
+// EXTERNAL MODULE: external "https"
+var external_https_ = __nccwpck_require__(5687);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(1017);
+;// CONCATENATED MODULE: ./src/helpers/buildExec.ts
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
+
+const buildExec_buildExec = () => {
     const failCi = isTrue(core.getInput('fail_ci_if_error'));
     const os = core.getInput('os');
     const url = core.getInput('url');
@@ -21751,126 +21983,10 @@ const buildGeneralExec = () => {
     }
     return { args, failCi, os, verbose, uploaderVersion };
 };
-const buildReportExec = () => {
-    const overrideCommit = core.getInput('override_commit');
-    const slug = core.getInput('slug');
-    const token = core.getInput('token');
-    const reportCommand = 'create-report';
-    const reportExecArgs = [];
-    const reportOptions = {};
-    reportOptions.env = Object.assign(process.env, {
-        GITHUB_ACTION: process.env.GITHUB_ACTION,
-        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
-        GITHUB_REF: process.env.GITHUB_REF,
-        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
-        GITHUB_SHA: process.env.GITHUB_SHA,
-        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
-    });
-    if (token) {
-        reportOptions.env.CODECOV_TOKEN = token;
-    }
-    if (overrideCommit) {
-        reportExecArgs.push('-C', `${overrideCommit}`);
-    }
-    else if (`${context.eventName}` == 'pull_request' ||
-        `${context.eventName}` == 'pull_request_target') {
-        reportExecArgs.push('-C', `${context.payload.pull_request.head.sha}`);
-    }
-    if (slug) {
-        reportExecArgs.push('--slug', `${slug}`);
-    }
-    return { reportExecArgs, reportOptions, reportCommand };
-};
-const buildStaticAnalysisExec = () => {
-    const filePattern = core.getInput('file_pattern');
-    const foldersToExclude = core.getInput('folders_to_exclude');
-    const force = core.getInput('force');
-    const overrideCommit = core.getInput('override_commit');
-    const staticToken = core.getInput('static_token');
-    const staticAnalysisCommand = 'static-analysis';
-    const staticAnalysisExecArgs = [];
-    const staticAnalysisOptions = {};
-    staticAnalysisOptions.env = Object.assign(process.env, {
-        GITHUB_ACTION: process.env.GITHUB_ACTION,
-        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
-        GITHUB_REF: process.env.GITHUB_REF,
-        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
-        GITHUB_SHA: process.env.GITHUB_SHA,
-        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
-    });
-    if (staticToken) {
-        staticAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
-    }
-    if (filePattern) {
-        staticAnalysisExecArgs.push('--pattern', `${filePattern}`);
-    }
-    if (foldersToExclude) {
-        staticAnalysisExecArgs.push('--folders-to-exclude', `${foldersToExclude}`);
-    }
-    if (force) {
-        staticAnalysisExecArgs.push('--force');
-    }
-    if (overrideCommit) {
-        staticAnalysisExecArgs.push('-C', `${overrideCommit}`);
-    }
-    else if (`${context.eventName}` == 'pull_request' ||
-        `${context.eventName}` == 'pull_request_target') {
-        staticAnalysisExecArgs.push('--commit-sha', `${context.payload.pull_request.head.sha}`);
-    }
-    return { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand };
-};
-const buildLabelAnalysisExec = () => buildExec_awaiter(void 0, void 0, void 0, function* () {
-    const overrideCommit = core.getInput('override_commit');
-    const overrideBaseCommit = core.getInput('override_base_commit');
-    const maxWaitTime = core.getInput('max_wait_time');
-    const testOutputPath = core.getInput('test_output_path');
-    const staticToken = core.getInput('static_token');
-    const labelAnalysisCommand = 'label-analysis';
-    const labelAnalysisExecArgs = ['--dry-run'];
-    const labelAnalysisOptions = {};
-    labelAnalysisOptions.env = Object.assign(process.env, {
-        GITHUB_ACTION: process.env.GITHUB_ACTION,
-        GITHUB_RUN_ID: process.env.GITHUB_RUN_ID,
-        GITHUB_REF: process.env.GITHUB_REF,
-        GITHUB_REPOSITORY: process.env.GITHUB_REPOSITORY,
-        GITHUB_SHA: process.env.GITHUB_SHA,
-        GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF || '',
-    });
-    if (staticToken) {
-        labelAnalysisOptions.env.CODECOV_STATIC_TOKEN = staticToken;
-    }
-    if (overrideCommit) {
-        labelAnalysisExecArgs.push('-C', `${overrideCommit}`);
-    }
-    else if (`${context.eventName}` == 'pull_request' ||
-        `${context.eventName}` == 'pull_request_target') {
-        labelAnalysisExecArgs.push('--head-sha', `${context.payload.pull_request.head.sha}`);
-    }
-    if (overrideBaseCommit) {
-        labelAnalysisOptions.baseCommits = [overrideBaseCommit];
-    }
-    else {
-        const parentCommit = yield getParentCommit();
-        const prBaseCommit = getPRBaseCommit();
-        labelAnalysisOptions.baseCommits = [parentCommit, prBaseCommit];
-    }
-    if (maxWaitTime) {
-        labelAnalysisExecArgs.push('--max-wait-time', `${maxWaitTime}`);
-    }
-    if (testOutputPath) {
-        labelAnalysisOptions.testOutputPath = testOutputPath;
-    }
-    else {
-        labelAnalysisOptions.testOutputPath = 'tmp-codecov-labels';
-    }
-    return { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand };
-});
-
+/* harmony default export */ const helpers_buildExec = (buildExec_buildExec);
 
 // EXTERNAL MODULE: external "crypto"
 var external_crypto_ = __nccwpck_require__(6113);
-// EXTERNAL MODULE: ./node_modules/openpgp/dist/node/openpgp.min.js
-var openpgp_min = __nccwpck_require__(7946);
 ;// CONCATENATED MODULE: external "node:http"
 const external_node_http_namespaceObject = require("node:http");
 ;// CONCATENATED MODULE: external "node:https"
@@ -24016,7 +24132,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 	});
 }
 
-;// CONCATENATED MODULE: ./src/validate.ts
+// EXTERNAL MODULE: ./node_modules/openpgp/dist/node/openpgp.min.js
+var openpgp_min = __nccwpck_require__(7946);
+;// CONCATENATED MODULE: ./src/helpers/validate.ts
 var validate_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -24033,11 +24151,12 @@ var validate_awaiter = (undefined && undefined.__awaiter) || function (thisArg, 
 
 
 
+
 const verify = (filename, platform, version, verbose, failCi) => validate_awaiter(void 0, void 0, void 0, function* () {
     try {
-        const uploaderName = getUploaderName(platform);
+        const cliName = getCliName(platform);
         // Read in public key
-        const publicKeyArmored = yield external_fs_.readFileSync(__nccwpck_require__.ab + "pgp_keys.asc", 'utf-8');
+        const publicKeyArmored = yield external_fs_.readFileSync(external_path_.join(__dirname, 'pgp_keys.asc'), 'utf-8');
         // Get SHASUM and SHASUM signature files
         console.log(`${getBaseUrl(platform, version)}.SHA256SUM`);
         const shasumRes = yield fetch(`${getBaseUrl(platform, version)}.SHA256SUM`);
@@ -24066,29 +24185,29 @@ const verify = (filename, platform, version, verbose, failCi) => validate_awaite
         }
         const calculateHash = (filename) => validate_awaiter(void 0, void 0, void 0, function* () {
             const stream = external_fs_.createReadStream(filename);
-            const uploaderSha = external_crypto_.createHash(`sha256`);
-            stream.pipe(uploaderSha);
+            const cliSha = external_crypto_.createHash(`sha256`);
+            stream.pipe(cliSha);
             return new Promise((resolve, reject) => {
-                stream.on('end', () => resolve(`${uploaderSha.digest('hex')}  ${uploaderName}`));
+                stream.on('end', () => resolve(`${cliSha.digest('hex')}  ${cliName}`));
                 stream.on('error', reject);
             });
         });
         const hash = yield calculateHash(filename);
         if (hash === shasum) {
-            core.info(`==> Uploader SHASUM verified (${hash})`);
+            core.info(`==> CLI SHASUM verified (${hash})`);
         }
         else {
-            setFailure('Codecov: Uploader shasum does not match -- ' +
-                `uploader hash: ${hash}, public hash: ${shasum}`, failCi);
+            setFailure('Codecov: CLI SHASUM does not match -- ' +
+                `CLI hash: ${hash}, public hash: ${shasum}`, failCi);
         }
     }
     catch (err) {
-        setFailure(`Codecov: Error validating uploader: ${err.message}`, failCi);
+        setFailure(`Codecov: Error validating CLI: ${err.message}`, failCi);
     }
 });
 /* harmony default export */ const validate = (verify);
 
-;// CONCATENATED MODULE: ./src/version.ts
+;// CONCATENATED MODULE: ./src/helpers/version.ts
 var version_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -24117,8 +24236,8 @@ const versionInfo = (platform, version) => version_awaiter(void 0, void 0, void 
 });
 /* harmony default export */ const version = (versionInfo);
 
-;// CONCATENATED MODULE: ./src/index.ts
-var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+;// CONCATENATED MODULE: ./src/helpers/cli.ts
+var cli_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -24136,98 +24255,86 @@ var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argu
 
 
 
-let failCi;
-try {
-    const { commitExecArgs, commitOptions, commitCommand } = buildCommitExec();
-    const { reportExecArgs, reportOptions, reportCommand } = buildReportExec();
-    const { args, failCi, os, verbose, uploaderVersion } = buildGeneralExec();
-    const { staticAnalysisExecArgs, staticAnalysisOptions, staticAnalysisCommand } = buildStaticAnalysisExec();
+const getCliName = (platform) => {
+    if (isWindows(platform)) {
+        return 'codecov.exe';
+    }
+    else {
+        return 'codecov';
+    }
+};
+const isValidPlatform = (platform) => {
+    return PLATFORMS.includes(platform);
+};
+const isWindows = (platform) => {
+    return platform === 'windows';
+};
+const getPlatform = (os) => {
+    var _a;
+    if (isValidPlatform(os)) {
+        core.info(`==> ${os} OS provided`);
+        return os;
+    }
+    const platform = (_a = process.env.RUNNER_OS) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+    if (isValidPlatform(platform)) {
+        core.info(`==> ${platform} OS detected`);
+        return platform;
+    }
+    core.info('==> Could not detect OS or provided OS is invalid. Defaulting to linux');
+    return 'linux';
+};
+const getBaseUrl = (platform, version) => {
+    return `https://cli.codecov.io/${version}/${platform}/${getCliName(platform)}`;
+};
+const getCli = () => cli_awaiter(void 0, void 0, void 0, function* () {
+    const { args, failCi, os, verbose, uploaderVersion } = helpers_buildExec();
     const platform = getPlatform(os);
-    const filename = external_path_.join(__dirname, getUploaderName(platform));
-    external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
+    const filename = external_path_.join(__dirname, getCliName(platform));
+    yield external_https_.get(getBaseUrl(platform, uploaderVersion), (res) => {
         // Image will be stored at this path
         const filePath = external_fs_.createWriteStream(filename);
         res.pipe(filePath);
         filePath
             .on('error', (err) => {
             setFailure(`Codecov: Failed to write uploader binary: ${err.message}`, true);
-        }).on('finish', () => src_awaiter(void 0, void 0, void 0, function* () {
+        }).on('finish', () => cli_awaiter(void 0, void 0, void 0, function* () {
             filePath.close();
             yield validate(filename, platform, uploaderVersion, verbose, failCi);
             yield version(platform, uploaderVersion);
             yield external_fs_.chmodSync(filename, '777');
-            const unlink = () => {
-                external_fs_.unlink(filename, (err) => {
-                    if (err) {
-                        setFailure(`Codecov: Could not unlink uploader: ${err.message}`, failCi);
-                    }
-                });
-            };
-            const createReport = () => src_awaiter(void 0, void 0, void 0, function* () {
-                yield exec.exec(getCommand(filename, args, reportCommand).join(' '), reportExecArgs, reportOptions)
-                    .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
-                    if (exitCode == 0) {
-                        yield staticAnalysis();
-                    }
-                })).catch((err) => {
-                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
-                });
-            });
-            const staticAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
-                yield exec.exec(getCommand(filename, args, staticAnalysisCommand).join(' '), staticAnalysisExecArgs, staticAnalysisOptions)
-                    .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
-                    if (exitCode == 0) {
-                        yield labelAnalysis();
-                    }
-                })).catch((err) => {
-                    setFailure(`Codecov: Failed to properly create report: ${err.message}`, failCi);
-                });
-            });
-            const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
-                const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand } = yield buildLabelAnalysisExec();
-                let labelsSet = false;
-                core.info(`${labelAnalysisOptions.baseCommits}`);
-                for (const baseCommit of labelAnalysisOptions.baseCommits) {
-                    core.info(`Trying ${baseCommit}`);
-                    if (baseCommit != '') {
-                        const labelArgs = [...labelAnalysisExecArgs];
-                        labelArgs.push('--base-sha', `${baseCommit}`);
-                        let labels = '';
-                        labelAnalysisOptions.listeners = {
-                            stdout: (data) => {
-                                labels += data.toString();
-                            },
-                        };
-                        yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions)
-                            .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
-                            if (exitCode == 0) {
-                                labelsSet = true;
-                                const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
-                                core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
-                            }
-                        })).catch((err) => {
-                            core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
-                        });
-                        if (labelsSet) {
-                            break;
-                        }
-                    }
-                }
-                if (!labelsSet) {
-                    core.info(`Codecov: Could not find labels from commits: ${labelAnalysisOptions.baseCommits} Defaulting to run all tests.`);
-                    core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', '');
-                }
-            });
-            yield exec.exec(getCommand(filename, args, commitCommand).join(' '), commitExecArgs, commitOptions)
-                .then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
-                if (exitCode == 0) {
-                    yield createReport();
-                }
-                unlink();
-            })).catch((err) => {
-                setFailure(`Codecov: Failed to properly create commit: ${err.message}`, failCi);
-            });
+            return { args, failCi, filename };
         }));
+    });
+    return { args, failCi, filename };
+});
+/* harmony default export */ const cli = (getCli);
+
+
+;// CONCATENATED MODULE: ./src/index.ts
+var src_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+
+let failCi;
+try {
+    () => src_awaiter(void 0, void 0, void 0, function* () {
+        const { args, failCi, filename } = yield cli();
+        yield commands_runCreateCommit(args, failCi, filename);
+        yield commands_runCreateReport(args, failCi, filename);
+        yield commands_runStaticAnalysis(args, failCi, filename);
+        yield commands_runLabelAnalysis(args, failCi, filename);
+        unlink(filename, failCi);
     });
 }
 catch (err) {

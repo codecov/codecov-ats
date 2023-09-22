@@ -1,16 +1,17 @@
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import * as path from 'path';
-
 import * as core from '@actions/core';
+import * as crypto from 'crypto';
+import fetch from 'node-fetch';
+import * as fs from 'fs';
 import * as openpgp from 'openpgp';
-import * as fetch from 'node-fetch';
+import * as path from 'path';
 
 import {
   getBaseUrl,
-  getUploaderName,
+  getCliName,
+} from './cli';
+import {
   setFailure,
-} from './helpers';
+} from './utils';
 
 const verify = async (
     filename: string,
@@ -20,7 +21,7 @@ const verify = async (
     failCi: boolean,
 ): Promise<void> => {
   try {
-    const uploaderName = getUploaderName(platform);
+    const cliName = getCliName(platform);
 
     // Read in public key
     const publicKeyArmored = await fs.readFileSync(
@@ -30,7 +31,7 @@ const verify = async (
 
     // Get SHASUM and SHASUM signature files
     console.log(`${getBaseUrl(platform, version)}.SHA256SUM`);
-    const shasumRes = await fetch.default(
+    const shasumRes = await fetch(
         `${getBaseUrl(platform, version)}.SHA256SUM`,
     );
     const shasum = await shasumRes.text();
@@ -38,7 +39,7 @@ const verify = async (
       console.log(`Received SHA256SUM ${shasum}`);
     }
 
-    const shaSigRes = await fetch.default(
+    const shaSigRes = await fetch(
         `${getBaseUrl(platform, version)}.SHA256SUM.sig`,
     );
     const shaSig = await shaSigRes.text();
@@ -63,12 +64,12 @@ const verify = async (
 
     const calculateHash = async (filename: string) => {
       const stream = fs.createReadStream(filename);
-      const uploaderSha = crypto.createHash(`sha256`);
-      stream.pipe(uploaderSha);
+      const cliSha = crypto.createHash(`sha256`);
+      stream.pipe(cliSha);
 
       return new Promise((resolve, reject) => {
         stream.on('end', () => resolve(
-            `${uploaderSha.digest('hex')}  ${uploaderName}`,
+            `${cliSha.digest('hex')}  ${cliName}`,
         ));
         stream.on('error', reject);
       });
@@ -76,16 +77,16 @@ const verify = async (
 
     const hash = await calculateHash(filename);
     if (hash === shasum) {
-      core.info(`==> Uploader SHASUM verified (${hash})`);
+      core.info(`==> CLI SHASUM verified (${hash})`);
     } else {
       setFailure(
-          'Codecov: Uploader shasum does not match -- ' +
-            `uploader hash: ${hash}, public hash: ${shasum}`,
+          'Codecov: CLI SHASUM does not match -- ' +
+            `CLI hash: ${hash}, public hash: ${shasum}`,
           failCi,
       );
     }
   } catch (err) {
-    setFailure(`Codecov: Error validating uploader: ${err.message}`, failCi);
+    setFailure(`Codecov: Error validating CLI: ${err.message}`, failCi);
   }
 };
 export default verify;
