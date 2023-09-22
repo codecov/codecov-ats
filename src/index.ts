@@ -108,7 +108,11 @@ try {
             labelAnalysisOptions.baseCommits.push(
                 'aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee',
             );
+            let labelsSet = false;
+
+            core.info(`${labelAnalysisOptions.baseCommits}`);
             for (const baseCommit of labelAnalysisOptions.baseCommits) {
+              core.info(`Trying ${baseCommit}`);
               if (baseCommit != '') {
                 const labelArgs = [...labelAnalysisExecArgs];
                 labelArgs.push(
@@ -129,6 +133,7 @@ try {
                     labelAnalysisOptions,
                 ).then(async (exitCode) => {
                   if (exitCode == 0) {
+                    labelsSet = true;
                     const tests = labels.replace(
                         'ATS_TESTS_TO_RUN=', '',
                     ).replaceAll(
@@ -141,11 +146,26 @@ try {
                   }
                 }).catch((err) => {
                   core.warning(
-                      `Codecov:,
+                      `Codecov:
                       Failed to properly retrieve labels: ${err.message}`,
                   );
                 });
+
+                if (labelsSet) {
+                  break;
+                }
               }
+            }
+            if (!labelsSet) {
+              core.info(
+                  `Codecov: Could not find labels from commits:
+                  ${labelAnalysisOptions.baseCommits}
+                  Defaulting to run all tests.`,
+              );
+              core.exportVariable(
+                  'CODECOV_ATS_TESTS_TO_RUN',
+                  '',
+              );
             }
           };
           await exec.exec(

@@ -24188,7 +24188,10 @@ try {
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
                 labelAnalysisOptions.baseCommits.push('aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee');
+                let labelsSet = false;
+                core.info(`${labelAnalysisOptions.baseCommits}`);
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {
+                    core.info(`Trying ${baseCommit}`);
                     if (baseCommit != '') {
                         const labelArgs = [...labelAnalysisExecArgs];
                         labelArgs.push('--base-sha', `${baseCommit}`);
@@ -24200,14 +24203,24 @@ try {
                         };
                         yield exec.exec(getCommand(filename, args, labelAnalysisCommand).join(' '), labelArgs, labelAnalysisOptions).then((exitCode) => src_awaiter(void 0, void 0, void 0, function* () {
                             if (exitCode == 0) {
+                                labelsSet = true;
                                 const tests = labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', '');
                                 core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', tests);
                             }
                         })).catch((err) => {
-                            core.warning(`Codecov:,
+                            core.warning(`Codecov:
                       Failed to properly retrieve labels: ${err.message}`);
                         });
+                        if (labelsSet) {
+                            break;
+                        }
                     }
+                }
+                if (!labelsSet) {
+                    core.info(`Codecov: Could not find labels from commits:
+                  ${labelAnalysisOptions.baseCommits}
+                  Defaulting to run all tests.`);
+                    core.exportVariable('CODECOV_ATS_TESTS_TO_RUN', '');
                 }
             });
             yield exec.exec(getCommand(filename, args, commitCommand).join(' '), commitExecArgs, commitOptions)
