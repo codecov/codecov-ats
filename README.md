@@ -1,7 +1,7 @@
 # codecov-ats
 GitHub Action that uploads returns selected test labels to CI ☂️
 
-This Action is currently in beta and not recommended for general use.
+This Action is currently in beta. Currently, it has only been tested on `linux` builds using `python` and `pytest`.
 
 If you have feedback or issues with running this action, please don't hesitate to let us know by creating a Github Issue against this repo.
 
@@ -15,12 +15,12 @@ If you have feedback or issues with running this action, please don't hesitate t
           fetch-depth: 0
 ```
 
-1. Add in `CODECOV_TOKEN` and `CODECOV_STATIC_TOKEN` secrets from the Codecov UI to GitHub.
+2. Add in `CODECOV_TOKEN` and `CODECOV_STATIC_TOKEN` secrets from the Codecov UI to GitHub.
 You can find the `CODECOV_STATIC_TOKEN` as the `Static analysis token`
 
 Set the Static analysis token to `CODECOV_STATIC_TOKEN` in your repository secrets.
 
-1. Update your `codecov.yml` by adding the following
+3. Update your `codecov.yml` by adding the following
 
 ```yaml
 flag_management:
@@ -38,14 +38,14 @@ cli:
       report_type: "json"
 ```
 
-1. If `pytest-cov` is not a dependency, add it to your `requirements.txt` file, or run the following after you install your python dependencies in your GitHub Actions workflow.
+4. If `pytest-cov` is not a dependency, add it to your `requirements.txt` file, or run the following after you install your python dependencies in your GitHub Actions workflow.
 
 ```yaml
 - name: Install pytest
   run: pip install pytest-cov
 ```
 
-1. Add the Codecov ATS Action to your CI. This should happen after you install python dependencies, but before you run tests.
+5. Add the Codecov ATS Action to your CI. This should happen after you install python dependencies, but before you run tests.
 
 ```yaml
 - name: Run ATS
@@ -58,14 +58,14 @@ cli:
 #   run: pytest ...
 ```
 
-1. Update your `pytest` run to include the tests selected from ATS. You will need to add the `CODECOV_ATS_TESTS_TO_RUN` variable like below.
+6. Update your `pytest` run to include the tests selected from ATS. You will need to add the `CODECOV_ATS_TESTS_TO_RUN` variable like below.
 
 ```yaml
 - name: Run tests and collect coverage
   run: pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
 ```
 
-1. If you are not already using the Codecov CLI to upload coverage, you can update the Codecov Action to `v4-beta`
+7. If you are not already using the Codecov CLI to upload coverage, you can update the Codecov Action to `v4-beta`
 
 ```yaml
 - name: Upload coverage to Codecov
@@ -77,4 +77,4 @@ cli:
     plugins: pycoverage,compress-pycoverage
 ```
 
-1. Run your CI! On your first run, Codecov will not have any labels data and will have to run all tests. However, once all following commits or pull requests are rebased on top of this commit, you should be able to see the benefits of ATS.
+8. Run your CI! On your first run, Codecov will not have any labels data and will have to run all tests. However, once all following commits or pull requests are rebased on top of this commit, you should be able to see the benefits of ATS.
