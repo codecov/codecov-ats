@@ -85,6 +85,9 @@ const getParentCommit = async (): Promise<string> => {
       'git',
       ['rev-parse', 'HEAD^'],
   );
+  core.info(`buffer ${commitBuffer}`);
+  core.info(`stdout ${commitBuffer.stdout}`);
+  core.info(`string ${commitBuffer.stdout.toString()}`);
   const parentCommit = commitBuffer.stdout.toString().trim();
   core.info(`Parent commit: ${parentCommit}`);
   return parentCommit;
