@@ -24187,7 +24187,6 @@ try {
             });
             const labelAnalysis = () => src_awaiter(void 0, void 0, void 0, function* () {
                 const { labelAnalysisExecArgs, labelAnalysisOptions, labelAnalysisCommand, } = yield buildLabelAnalysisExec();
-                labelAnalysisOptions.baseCommits.unshift('aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee');
                 let labelsSet = false;
                 core.info(`${labelAnalysisOptions.baseCommits}`);
                 for (const baseCommit of labelAnalysisOptions.baseCommits) {

@@ -105,9 +105,6 @@ try {
               labelAnalysisOptions,
               labelAnalysisCommand,
             } = await buildLabelAnalysisExec();
-            labelAnalysisOptions.baseCommits.unshift(
-                'aaaaaaaaaaaa2c69f4575abfda868fbeeb6794ee',
-            );
             let labelsSet = false;
 
             core.info(`${labelAnalysisOptions.baseCommits}`);
