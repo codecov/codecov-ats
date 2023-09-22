@@ -8,14 +8,12 @@ import {setFailure, unlink} from './helpers/utils';
 let failCi;
 
 try {
-  async () => {
-    const {args, failCi, filename} = await getCli();
-    await runCreateCommit(args, failCi, filename);
-    await runCreateReport(args, failCi, filename);
-    await runStaticAnalysis(args, failCi, filename);
-    await runLabelAnalysis(args, failCi, filename);
-    unlink(filename, failCi);
-  };
+  const {args, failCi, filename} = await getCli();
+  await runCreateCommit(args, failCi, filename);
+  await runCreateReport(args, failCi, filename);
+  await runStaticAnalysis(args, failCi, filename);
+  await runLabelAnalysis(args, failCi, filename);
+  unlink(filename, failCi);
 } catch (err) {
   setFailure(`Codecov: Encountered an unexpected error ${err.message}`, failCi);
 }
