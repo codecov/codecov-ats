@@ -38,6 +38,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
   let labels = '';
   options.listeners = {
     stdout: (data: Buffer) => {
+      core.info(`meow: ${data.toString()}`);
       labels += data.toString();
     },
   };
