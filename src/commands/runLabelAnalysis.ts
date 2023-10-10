@@ -45,13 +45,21 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
   await exec.exec(getCommand(filename, args, command).join(' '), labelArgs, options)
       .then(async (exitCode) => {
         if (exitCode == 0) {
-          labelsSet = true;
-          core.info("These are the labels");
-          core.info(`${labels}`);
-          core.exportVariable(
-              options.outputVariable,
-              labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''),
-          );
+          let testsToRun = '';
+          for (const line of labels.split('\n')) {
+            if (line.startsWith('ATS_TESTS_TO_RUN')) {
+              testsToRun = line.replace('ATS_TESTS_TO_RUN=', '')
+              break;
+            }
+          }
+
+          if (testsToRun != '') {
+            labelsSet = true;
+            core.exportVariable(
+                options.outputVariable,
+                testsToRun,
+            );
+          }
         }
       }).catch((err) => {
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
