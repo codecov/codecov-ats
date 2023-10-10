@@ -1,6 +1,6 @@
 {
   "name": "codecov-ats",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "GitHub Action that returns selected test labels from Codecov☂️  to CI",
   "main": "index.js",
   "scripts": {
