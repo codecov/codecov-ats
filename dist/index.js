@@ -20818,7 +20818,7 @@ const getPRBaseCommit = () => {
     const context = github.context;
     if (context.eventName == 'pull_request') {
         const baseSha = context.payload.pull_request.base.sha;
-        core.info(`PR Base commit: ${baseSha}`);
+        core.info(`PRBase commit: ${baseSha}`);
         return baseSha;
     }
     return '';
@@ -20865,8 +20865,17 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
     await exec.exec((0,utils/* getCommand */.hW)(filename, args, command).join(' '), labelArgs, options)
         .then(async (exitCode) => {
         if (exitCode == 0) {
-            labelsSet = true;
-            core.exportVariable(options.outputVariable, labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''));
+            let testsToRun = '';
+            for (const line of labels.split('\n')) {
+                if (line.startsWith('ATS_TESTS_TO_RUN')) {
+                    testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
+                    break;
+                }
+            }
+            if (testsToRun != '') {
+                labelsSet = true;
+                core.exportVariable(options.outputVariable, testsToRun);
+            }
         }
     }).catch((err) => {
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);

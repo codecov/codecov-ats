@@ -41,7 +41,7 @@ jobs:
           folders_to_exclude: node_modules
           verbose: true
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_ORG_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Run Tests and collect coverage
         run: pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
