@@ -32,37 +32,37 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
   }
   core.info(`Attempting label analysis on ${baseCommit}`);
 
+  core.warning('meow2');
   const labelArgs = [...execArgs];
   labelArgs.push('--base-sha', `${baseCommit}`);
+
+  core.warning('meow1');
 
   let labels = '';
   options.listeners = {
     stdout: (data: Buffer) => {
-      core.info(`meow: ${data.toString()}`);
+      core.warning('meow3');
       labels += data.toString();
     },
   };
 
-  core.info('meow');
 
   await exec.exec(getCommand(filename, args, command).join(' '), labelArgs, options)
       .then(async (exitCode) => {
-        core.info('stuff');
-        core.info(`${exitCode}`);
-        core.info(`${labels}`);
+        core.warning('meow4');
         if (exitCode == 0) {
+          core.warning('meow5');
           let testsToRun = '';
           for (const line of labels.split('\n')) {
-            core.info(`this is a line ${line}`);
+            core.warning('meow6');
             if (line.startsWith('ATS_TESTS_TO_RUN')) {
-              core.info(`found it ${line}`);
               testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
               break;
             }
           }
 
-          core.info(`testsToRun: ${testsToRun}`);
           if (testsToRun != '') {
+            core.warning('meow7');
             labelsSet = true;
             core.exportVariable(
                 options.outputVariable,
@@ -71,6 +71,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
           }
         }
       }).catch((err) => {
+        core.warning('meow8');
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
       });
   return labelsSet;

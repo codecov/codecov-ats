@@ -26,7 +26,7 @@ const getPRBaseCommit = (): string => {
   const context = github.context;
   if (context.eventName == 'pull_request') {
     const baseSha = context.payload.pull_request.base.sha;
-    core.info(`PR Base commit: ${baseSha}`);
+    core.info(`PRBase commit: ${baseSha}`);
     return baseSha;
   }
   return '';
