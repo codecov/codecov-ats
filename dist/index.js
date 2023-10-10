@@ -20818,7 +20818,7 @@ const getPRBaseCommit = () => {
     const context = github.context;
     if (context.eventName == 'pull_request') {
         const baseSha = context.payload.pull_request.base.sha;
-        core.info(`PR Base commit: ${baseSha}`);
+        core.info(`PRBase commit: ${baseSha}`);
         return baseSha;
     }
     return '';
@@ -20854,21 +20854,38 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
         return false;
     }
     core.info(`Attempting label analysis on ${baseCommit}`);
+    core.warning('meow2');
     const labelArgs = [...execArgs];
     labelArgs.push('--base-sha', `${baseCommit}`);
+    core.warning('meow1');
     let labels = '';
     options.listeners = {
         stdout: (data) => {
+            core.warning('meow3');
             labels += data.toString();
         },
     };
     await exec.exec((0,utils/* getCommand */.hW)(filename, args, command).join(' '), labelArgs, options)
         .then(async (exitCode) => {
+        core.warning('meow4');
         if (exitCode == 0) {
-            labelsSet = true;
-            core.exportVariable(options.outputVariable, labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''));
+            core.warning('meow5');
+            let testsToRun = '';
+            for (const line of labels.split('\n')) {
+                core.warning('meow6');
+                if (line.startsWith('ATS_TESTS_TO_RUN')) {
+                    testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
+                    break;
+                }
+            }
+            if (testsToRun != '') {
+                core.warning('meow7');
+                labelsSet = true;
+                core.exportVariable(options.outputVariable, testsToRun);
+            }
         }
     }).catch((err) => {
+        core.warning('meow9');
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
     });
     return labelsSet;

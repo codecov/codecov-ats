@@ -71,7 +71,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
           }
         }
       }).catch((err) => {
-        core.warning('meow8');
+        core.warning('meow9');
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
       });
   return labelsSet;
