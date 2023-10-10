@@ -42,17 +42,25 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
     },
   };
 
+  core.info('meow');
+
   await exec.exec(getCommand(filename, args, command).join(' '), labelArgs, options)
       .then(async (exitCode) => {
+        core.info('stuff');
+        core.info(`${exitCode}`);
+        core.info(`${labels}`);
         if (exitCode == 0) {
           let testsToRun = '';
           for (const line of labels.split('\n')) {
+            core.info(`this is a line ${line}`);
             if (line.startsWith('ATS_TESTS_TO_RUN')) {
-              testsToRun = line.replace('ATS_TESTS_TO_RUN=', '')
+              core.info(`found it ${line}`);
+              testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
               break;
             }
           }
 
+          core.info(`testsToRun: ${testsToRun}`);
           if (testsToRun != '') {
             labelsSet = true;
             core.exportVariable(
