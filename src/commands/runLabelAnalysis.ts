@@ -46,6 +46,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
       .then(async (exitCode) => {
         if (exitCode == 0) {
           labelsSet = true;
+          core.warning(`${labels}`);
           core.exportVariable(
               options.outputVariable,
               labels.replace('ATS_TESTS_TO_RUN=', '').replaceAll('"', ''),
