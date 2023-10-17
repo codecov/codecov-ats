@@ -7,10 +7,13 @@ const versionInfo = async (
 ): Promise<void> => {
   if (version) {
     core.info(`==> Running version ${version}`);
+  } else {
+    core.info(`==> Defaulting to 0.3.9`);
+    version = 'v0.3.9';
   }
 
   try {
-    const metadataRes = await fetch(`https://cli.codecov.io/${platform}/latest`, {
+    const metadataRes = await fetch(`https://cli.codecov.io/${platform}/${version}`, {
       headers: {'Accept': 'application/json'},
     });
     const metadata = await metadataRes.json();
