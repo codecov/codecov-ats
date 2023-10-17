@@ -40,7 +40,7 @@ jobs:
           fail_ci_if_error: true
           folders_to_exclude: node_modules
           verbose: true
-          version: '0.3.3'
+          version: 'v0.3.3'
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
