@@ -43387,8 +43387,8 @@ const versionInfo = async (platform, version) => {
         core.info(`==> Running version ${version}`);
     }
     else {
-        core.info(`==> Defaulting to 0.3.9`);
-        version = 'v0.3.9';
+        core.info(`==> Defaulting to 0.3.8`);
+        version = 'v0.3.8';
     }
     try {
         const metadataRes = await fetch(`https://cli.codecov.io/${platform}/${version}`, {
