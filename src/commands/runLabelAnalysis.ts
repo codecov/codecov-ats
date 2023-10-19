@@ -47,6 +47,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
       .then(async (exitCode) => {
         if (exitCode == 0) {
           let testsToRun = '';
+
           for (const line of labels.split('\n')) {
             if (line.startsWith('ATS_TESTS_TO_RUN')) {
               testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
