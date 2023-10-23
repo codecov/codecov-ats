@@ -4,6 +4,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 
+import {DEFAULTTESTARGS} from '../helpers/constants';
 import {getParentCommit, getPRBaseCommit} from '../helpers/git';
 import {getCommand} from '../helpers/utils';
 
@@ -70,7 +71,7 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
   if (!labelsSet) {
     core.exportVariable(
         options.outputVariable,
-        '--cov-context=test',
+        DEFAULTTESTARGS,
     );
   }
   return labelsSet;
