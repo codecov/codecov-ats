@@ -78,7 +78,7 @@ const buildExec = async () => {
   const staticToken = core.getInput('static_token');
 
   const command = 'label-analysis';
-  const execArgs = ['--dry-run'];
+  const execArgs = ['--dry-run', '--dry-run-format', 'space-separated-list'];
 
   const options:any = {};
   options.env = Object.assign(process.env, {

@@ -40993,7 +40993,7 @@ const buildExec = async () => {
     const testOutputPath = core.getInput('test_output_path');
     const staticToken = core.getInput('static_token');
     const command = 'label-analysis';
-    const execArgs = ['--dry-run'];
+    const execArgs = ['--dry-run', '--dry-run-format', 'space-separated-list'];
     const options = {};
     options.env = Object.assign(process.env, {
         GITHUB_ACTION: process.env.GITHUB_ACTION,
