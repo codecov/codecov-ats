@@ -49,8 +49,8 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
           let testsToRun = '';
 
           for (const line of labels.split('\n')) {
-            if (line.startsWith('ATS_TESTS_TO_RUN')) {
-              testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
+            if (line.startsWith('TESTS_TO_RUN')) {
+              testsToRun = line.replace('TESTS_TO_RUN=', '');
               break;
             }
           }
@@ -66,6 +66,13 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
       }).catch((err) => {
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
       });
+
+  if (!labelsSet) {
+    core.exportVariable(
+        options.outputVariable,
+        '--cov-context=test',
+    );
+  }
   return labelsSet;
 };
 
