@@ -22,7 +22,10 @@ const runLabelAnalysis = async (args, filename) => {
 
   if (!labelsSet) {
     core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
-    core.exportVariable(options.outputVariable, '');
+    core.exportVariable(
+        options.outputVariable,
+        DEFAULTTESTARGS,
+    );
   }
 };
 
@@ -67,13 +70,6 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
       }).catch((err) => {
         core.warning(`Codecov: Failed to properly retrieve labels: ${err.message}`);
       });
-
-  if (!labelsSet) {
-    core.exportVariable(
-        options.outputVariable,
-        DEFAULTTESTARGS,
-    );
-  }
   return labelsSet;
 };
 
