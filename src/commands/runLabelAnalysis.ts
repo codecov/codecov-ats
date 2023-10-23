@@ -4,6 +4,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 
+import {DEFAULTTESTARGS} from '../helpers/constants';
 import {getParentCommit, getPRBaseCommit} from '../helpers/git';
 import {getCommand} from '../helpers/utils';
 
@@ -21,7 +22,10 @@ const runLabelAnalysis = async (args, filename) => {
 
   if (!labelsSet) {
     core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
-    core.exportVariable(options.outputVariable, '');
+    core.exportVariable(
+        options.outputVariable,
+        DEFAULTTESTARGS,
+    );
   }
 };
 
@@ -47,9 +51,10 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
       .then(async (exitCode) => {
         if (exitCode == 0) {
           let testsToRun = '';
+
           for (const line of labels.split('\n')) {
-            if (line.startsWith('ATS_TESTS_TO_RUN')) {
-              testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
+            if (line.startsWith('TESTS_TO_RUN')) {
+              testsToRun = line.replace('TESTS_TO_RUN=', '');
               break;
             }
           }
@@ -77,7 +82,7 @@ const buildExec = async () => {
   const staticToken = core.getInput('static_token');
 
   const command = 'label-analysis';
-  const execArgs = ['--dry-run'];
+  const execArgs = ['--dry-run', '--dry-run-format', 'space-separated-list'];
 
   const options:any = {};
   options.env = Object.assign(process.env, {

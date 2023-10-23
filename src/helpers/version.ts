@@ -8,8 +8,8 @@ const versionInfo = async (
   if (version) {
     core.info(`==> Running version ${version}`);
   } else {
-    core.info(`==> Defaulting to 0.3.8`);
-    version = 'v0.3.8';
+    core.info(`==> Defaulting to latest`);
+    version = 'latest';
   }
 
   try {

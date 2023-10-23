@@ -40898,6 +40898,8 @@ var core = __nccwpck_require__(2186);
 var exec = __nccwpck_require__(1514);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
+// EXTERNAL MODULE: ./src/helpers/constants.ts
+var constants = __nccwpck_require__(750);
 // EXTERNAL MODULE: ./src/helpers/utils.ts
 var utils = __nccwpck_require__(7134);
 ;// CONCATENATED MODULE: ./src/helpers/git.ts
@@ -40935,6 +40937,7 @@ const getPRBaseCommit = () => {
 
 
 
+
 const runLabelAnalysis = async (args, filename) => {
     let labelsSet = false;
     const { execArgs, options, command } = await buildExec();
@@ -40948,7 +40951,7 @@ const runLabelAnalysis = async (args, filename) => {
     }
     if (!labelsSet) {
         core.info(`Codecov: Could not find labels from commits: ${options.baseCommits} Defaulting to run all tests.`);
-        core.exportVariable(options.outputVariable, '');
+        core.exportVariable(options.outputVariable, constants/* DEFAULTTESTARGS */.it);
     }
 };
 const runLabelAnalysisForCommit = async (execArgs, args, options, command, filename, baseCommit) => {
@@ -40970,8 +40973,8 @@ const runLabelAnalysisForCommit = async (execArgs, args, options, command, filen
         if (exitCode == 0) {
             let testsToRun = '';
             for (const line of labels.split('\n')) {
-                if (line.startsWith('ATS_TESTS_TO_RUN')) {
-                    testsToRun = line.replace('ATS_TESTS_TO_RUN=', '');
+                if (line.startsWith('TESTS_TO_RUN')) {
+                    testsToRun = line.replace('TESTS_TO_RUN=', '');
                     break;
                 }
             }
@@ -40993,7 +40996,7 @@ const buildExec = async () => {
     const testOutputPath = core.getInput('test_output_path');
     const staticToken = core.getInput('static_token');
     const command = 'label-analysis';
-    const execArgs = ['--dry-run'];
+    const execArgs = ['--dry-run', '--dry-run-format', 'space-separated-list'];
     const options = {};
     options.env = Object.assign(process.env, {
         GITHUB_ACTION: process.env.GITHUB_ACTION,
@@ -43387,8 +43390,8 @@ const versionInfo = async (platform, version) => {
         core.info(`==> Running version ${version}`);
     }
     else {
-        core.info(`==> Defaulting to 0.3.8`);
-        version = 'v0.3.8';
+        core.info(`==> Defaulting to latest`);
+        version = 'latest';
     }
     try {
         const metadataRes = await fetch(`https://cli.codecov.io/${platform}/${version}`, {
@@ -43422,7 +43425,7 @@ const getCliName = (platform) => {
     }
 };
 const isValidPlatform = (platform) => {
-    return constants/* PLATFORMS.includes */.V.includes(platform);
+    return constants/* PLATFORMS.includes */.VT.includes(platform);
 };
 const isWindows = (platform) => {
     return platform === 'windows';
@@ -43477,8 +43480,9 @@ const getCli = async () => {
 
 "use strict";
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "V": () => (/* binding */ PLATFORMS),
-/* harmony export */   "f": () => (/* binding */ SPAWNPROCESSBUFFERSIZE)
+/* harmony export */   "VT": () => (/* binding */ PLATFORMS),
+/* harmony export */   "fx": () => (/* binding */ SPAWNPROCESSBUFFERSIZE),
+/* harmony export */   "it": () => (/* binding */ DEFAULTTESTARGS)
 /* harmony export */ });
 const PLATFORMS = [
     'linux',
@@ -43486,6 +43490,7 @@ const PLATFORMS = [
     'windows',
 ];
 const SPAWNPROCESSBUFFERSIZE = 1048576 * 100; // 100 MiB
+const DEFAULTTESTARGS = '--cov-context=test';
 
 
 
@@ -43533,7 +43538,7 @@ const getCommand = (filename, generalArgs, command) => {
     return fullCommand;
 };
 const runExternalProgram = async (programName, optionalArguments = []) => {
-    const result = await child_process__WEBPACK_IMPORTED_MODULE_2___default().spawnSync(programName, optionalArguments, { maxBuffer: _constants__WEBPACK_IMPORTED_MODULE_3__/* .SPAWNPROCESSBUFFERSIZE */ .f });
+    const result = await child_process__WEBPACK_IMPORTED_MODULE_2___default().spawnSync(programName, optionalArguments, { maxBuffer: _constants__WEBPACK_IMPORTED_MODULE_3__/* .SPAWNPROCESSBUFFERSIZE */ .fx });
     if (result.error) {
         throw new Error(`Error running external program: ${result.error}`);
     }
