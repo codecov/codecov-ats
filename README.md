@@ -58,7 +58,7 @@ cli:
 #   run: pytest ...
 ```
 
-6. Update your `pytest` run to include the tests selected from ATS. You will need to add the `CODECOV_ATS_TESTS_TO_RUN` variable like below.
+6. Update your `pytest` run to include the tests selected from ATS. You will need to add the `CODECOV_ATS_TESTS` variable like below.
 
 ```yaml
 - name: Run tests and collect coverage
