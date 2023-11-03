@@ -50,11 +50,8 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        echo "start"
         commands=$(./codecov_ats.sh | tail -n 1)
-        echo "meow"
-        echo $commands
-        echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_OUTPUT"
+        echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
       shell: bash
       env:
         INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
