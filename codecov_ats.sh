@@ -6,11 +6,7 @@ echo $CODECOV_TOKEN
 
 pip install codecov-cli
 
-if [ -z $INPUTS_CODECOV_TOKEN ]; then
-  token=$CODECOV_TOKEN
-else
-  token=$INPUTS_CODECOV_TOKEN
-fi
+token=$( [ -n $INPUTS_CODECOV_TOKEN ] && echo $INPUTS_CODECOV_TOKEN || echo $CODECOV_TOKEN )
 codecovcli create-commit -t ${token} || >&2 echo 'Codecov: Failed to properly create commit'
 codecovcli create-report -t ${token} || >&2 echo 'Codecov: Failed to properly create report'
 
