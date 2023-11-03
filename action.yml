@@ -55,3 +55,4 @@ runs:
         INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
         INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
         INPUTS_VERBOSE: ${{ inputs.verbose }}
+        GITHUB_OUTPUT: $GITHUB_OUTPUT
