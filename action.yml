@@ -49,11 +49,11 @@ runs:
   using: "composite"
   steps:
     - name: what is token
-      run: echo ${{ inp }}
+      run: echo ${CODECOV_TOKEN}
       shell: bash
     - id: codecov-ats
       run: ./codecov_ats.sh
       shell: bash
       env:
-        CODECOV_TOKEN: ${CODECOV_TOKEN} || ${{ inputs.token }}
-        CODECOV_STATIC_TOKEN: ${CODECOV_STATIC_TOKEN} || ${{ inputs.static_token }}
+        CODECOV_TOKEN: ${{ inputs.token }} || ${CODECOV_TOKEN}
+        CODECOV_STATIC_TOKEN: ${{ inputs.static_token }} || ${CODECOV_STATIC_TOKEN}
