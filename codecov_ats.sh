@@ -32,4 +32,4 @@ ats_tests_to_skip=$(echo $response | sed 's/^.*ats_tests_to_skip\": \[//' | sed 
 test_commands=$runner_options
 test_commands+=$ats_tests_to_run
 
-echo "CODECOV_ATS_TESTS=$test_commands" >> "$GITHUB_OUTPUT"
+echo $test_commands
