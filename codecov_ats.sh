@@ -19,7 +19,7 @@ for base_commit in $base_commit_candidates
 do
     echo $base_commit
     response=$(codecovcli label-analysis --token=${static_token} --base-sha=$base_commit --dry-run --dry-run-format="json")
-    if [[ -n response ]]; then
+    if [[ -n $response ]]; then
         break
     fi
 done
