@@ -48,9 +48,10 @@ branding:
 runs:
   using: "composite"
   steps:
+    - name:
     - id: codecov-ats
       run: ./codecov_ats.sh
       shell: bash
-      env:
+      with:
         CODECOV_TOKEN: ${{ inputs.token }}
         CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
