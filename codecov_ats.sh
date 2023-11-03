@@ -1,3 +1,9 @@
+set -x
+
+echo "token:"
+echo $CODECOV_TOKEN
+
+
 pip install codecov-cli
 
 codecovcli create-commit -t ${CODECOV_TOKEN} || >&2 echo 'Codecov: Failed to properly create commit'

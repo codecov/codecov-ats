@@ -52,6 +52,6 @@ runs:
     - id: codecov-ats
       run: ./codecov_ats.sh
       shell: bash
-      with:
+      env:
         CODECOV_TOKEN: ${{ inputs.token }}
         CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
