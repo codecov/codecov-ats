@@ -49,7 +49,7 @@ runs:
   using: "composite"
   steps:
     - id: codecov-ats
-      run: codecov_ats.sh
+      run: ./codecov_ats.sh
       shell: bash
       env:
         CODECOV_TOKEN: ${{ inputs.token }}
