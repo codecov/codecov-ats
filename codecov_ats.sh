@@ -1,8 +1,6 @@
-set -x
+#!/usr/bin/env bash
 
-echo "token:"
-echo $CODECOV_TOKEN
-
+[[ $INPUTS_VERBOSE == true ]] && set -x
 
 pip install codecov-cli
 
