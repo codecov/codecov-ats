@@ -44,6 +44,12 @@ inputs:
 branding:
   color: 'red'
   icon: 'umbrella'
+
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  steps:
+    - id: codecov-ats
+      run: codecov_ats.sh
+      shell: bash
+      env:
+        CODECOV_TOKEN: ${{ inputs.token }}
+        CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
