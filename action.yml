@@ -48,7 +48,8 @@ branding:
 runs:
   using: "composite"
   steps:
-    - name:
+    - name: what is token
+      run: echo ${{ inputs.token }}
     - id: codecov-ats
       run: ./codecov_ats.sh
       shell: bash
