@@ -55,5 +55,5 @@ runs:
       run: ./codecov_ats.sh
       shell: bash
       env:
-        CODECOV_TOKEN: ${{ inputs.token }} || ${CODECOV_TOKEN}
-        CODECOV_STATIC_TOKEN: ${{ inputs.static_token }} || ${CODECOV_STATIC_TOKEN}
+        INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
+        INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
