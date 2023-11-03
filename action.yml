@@ -50,7 +50,8 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        commands=$(./codecov_ats.sh | tail -1)
+        commands=$(./codecov_ats.sh | tail -n 1)
+        echo $commands
         echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_OUTPUT"
       shell: bash
       env:
