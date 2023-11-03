@@ -46,6 +46,7 @@ branding:
   icon: 'umbrella'
 
 runs:
+  using: "composite"
   steps:
     - id: codecov-ats
       run: codecov_ats.sh
