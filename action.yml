@@ -50,6 +50,7 @@ runs:
   steps:
     - name: what is token
       run: echo ${{ inputs.token }}
+      shell: bash
     - id: codecov-ats
       run: ./codecov_ats.sh
       shell: bash
