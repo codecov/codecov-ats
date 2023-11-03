@@ -10,4 +10,5 @@ token=$( [[ -n $INPUTS_CODECOV_TOKEN ]] && echo $INPUTS_CODECOV_TOKEN || echo $C
 codecovcli create-commit -t ${token} || >&2 echo 'Codecov: Failed to properly create commit'
 codecovcli create-report -t ${token} || >&2 echo 'Codecov: Failed to properly create report'
 
-# codecovcli static-analysis --token=${STATIC_TOKEN} || >&2 echo 'Codecov: Failed to properly execute static analysis'
+static_token=$( [[ -n $INPUTS_CODECOV_STATIC_TOKEN ]] && echo $INPUTS_CODECOV_STATIC_TOKEN || echo $CODECOV_STATIC_TOKEN )
+codecovcli static-analysis --token=${static_token} || >&2 echo 'Codecov: Failed to properly execute static analysis'
