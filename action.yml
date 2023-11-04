@@ -57,7 +57,7 @@ runs:
   steps:
     - shell: bash
       run: |
-        if [ "${{ inputs.colored-output }}" == "true" ]; then
+        if [ "${{ inputs.colorize }}" == "true" ]; then
           echo "DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION=true" >> $GITHUB_ENV
           echo "TERM=xterm" >> $GITHUB_ENV
         fi
