@@ -46,7 +46,7 @@ codecovcli static-analysis --token=${CODECOV_STATIC_TOKEN} || say "${r}Codecov: 
 for base_commit in $base_commit_candidates
 do
     say "$y==>$x Attempting label analysis with $b$base_commit$x"
-    response=$(codecovcli label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json")
+    response=$(codecovcli label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || "")
     if [[ -n $response ]]; then
         break
     fi
