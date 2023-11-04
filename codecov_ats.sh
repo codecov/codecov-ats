@@ -3,6 +3,7 @@
 [[ $INPUTS_VERBOSE == true ]] && set -x
 
 # Set colors
+export TERM=xterm-color
 b="\033[0;36m"
 g="\033[0;32m"
 r="\033[0;31m"
