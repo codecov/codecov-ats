@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 [[ $INPUTS_VERBOSE == true ]] && set -x
-set -e
 
 # Set colors
 b="\033[0;36m"
