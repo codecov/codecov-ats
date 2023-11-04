@@ -7,6 +7,10 @@ inputs:
   static_token:
     description: 'Repository static token - get it from codecov.io. Required'
     required: true
+  colorize:
+    description: "Colorize the output"
+    required: false
+    default: true
   enterprise_url:
     description: 'Change the upload host (Enterprise use only)'
     required: false
@@ -51,6 +55,13 @@ branding:
 runs:
   using: "composite"
   steps:
+    - shell: bash
+      run: |
+        if [ "${{ inputs.colored-output }}" == "true" ]; then
+          echo "DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION=true" >> $GITHUB_ENV
+          echo "TERM=xterm" >> $GITHUB_ENV
+        fi
+
     - id: codecov-ats
       run: |
         commands=$(./codecov_ats.sh | tail -n 1)
