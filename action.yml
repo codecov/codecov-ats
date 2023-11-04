@@ -7,6 +7,9 @@ inputs:
   static_token:
     description: 'Repository static token - get it from codecov.io. Required'
     required: true
+  enterprise_url:
+    description: 'Change the upload host (Enterprise use only)'
+    required: false
   fail_ci_if_error:
     description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
     required: false
@@ -54,6 +57,7 @@ runs:
         echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
       shell: bash
       env:
-        INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
         INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
+        INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
+        INPUTS_ENTERPRISE_URL: ${{ inputs.enterprise_url }}
         INPUTS_VERBOSE: ${{ inputs.verbose }}
