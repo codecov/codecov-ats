@@ -14,10 +14,7 @@ say() {
 }
 
 
-# Install Codecov CLI
-pip install codecov-cli
-
-# Set up Codecov token
+# Set up token variables
 if [[ -n $INPUTS_CODECOV_TOKEN ]]; then
     CODECOV_TOKEN=$INPUTS_CODECOV_TOKEN
 fi
@@ -37,16 +34,28 @@ if [[ -z $CODECOV_STATIC_TOKEN ]]; then
 else
     say "$b==>$x Static token of length ${#CODECOV_STATIC_TOKEN} detected"
 fi
+
+#Set up codecovcli arguments
+codecovcli_args=""
+[[ $INPUTS_VERBOSE == true ]] && codecovcli_args+="-v"
+[[ -n $INPUTS_ENTERPRISE_URL ]] && codecovcli_args+="-u ${INPUTS_ENTERPRISE_URL}"
+
+#Set up codecovcli command arguments
+command_args=""
+[[ -n $INPUTS_PARENT_SHA ]] && $command_args+=""
+
+# Install Codecov CLI
+pip install codecov-cli
+
+codecovcli ${codecovcli_args} create-commit -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create commit$x"
+codecovcli ${codecovcli_args} create-report -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create report$x"
+codecovcli ${codecovcli_args} static-analysis --token=${CODECOV_STATIC_TOKEN} || say "${r}Codecov: Failed to properly execute static analysis"
+
 base_commit_candidates=($(git log --format=%H | sed -n "1,10p")) # Get last 10 commits
-
-codecovcli create-commit -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create commit$x"
-codecovcli create-report -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create report$x"
-codecovcli static-analysis --token=${CODECOV_STATIC_TOKEN} || say "${r}Codecov: Failed to properly execute static analysis"
-
 for base_commit in ${base_commit_candidates[@]}
 do
     say "$y==>$x Attempting label analysis with $b$base_commit$x"
-    response=$(codecovcli label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || true)
+    response=$(codecovcli ${codecovcli_args} label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || true)
     if [[ -n $response ]]; then
         break
     else
