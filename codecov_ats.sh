@@ -2,6 +2,9 @@
 
 [[ $INPUTS_VERBOSE == true ]] && set -x
 
+DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION=true
+TERM=xterm
+
 # Set colors
 b="\033[0;36m"
 g="\033[0;32m"
