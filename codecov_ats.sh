@@ -71,4 +71,4 @@ fi
 test_commands="$runner_options "
 test_commands+=$ats_tests_to_run
 say "$gArguments to run:$x"
-say $test_commands
+echo "$test_commands"
