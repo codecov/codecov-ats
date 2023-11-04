@@ -32,23 +32,25 @@ if [[ -n $INPUTS_CODECOV_STATIC_TOKEN ]]; then
     CODECOV_STATIC_TOKEN=$INPUTS_CODECOV_STATIC_TOKEN
 fi
 if [[ -z $CODECOV_STATIC_TOKEN ]]; then
-    say "${r}Token not provided or could not be found in environment. Exiting${x}"
+    say "${r}Static token not provided or could not be found in environment. Exiting${x}"
     exit 1
 else
-    say "$b==>$x Token of length ${#CODECOV_STATIC_TOKEN} detected"
+    say "$b==>$x Static token of length ${#CODECOV_STATIC_TOKEN} detected"
 fi
-base_commit_candidates=($(git log --format=%H | sed -n "2,10p")) # Get last 10 commits
+base_commit_candidates=($(git log --format=%H | sed -n "1,10p")) # Get last 10 commits
 
 codecovcli create-commit -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create commit$x"
 codecovcli create-report -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create report$x"
 codecovcli static-analysis --token=${CODECOV_STATIC_TOKEN} || say "${r}Codecov: Failed to properly execute static analysis"
 
-for base_commit in $base_commit_candidates
+for base_commit in ${base_commit_candidates[@]}
 do
     say "$y==>$x Attempting label analysis with $b$base_commit$x"
-    response=$(codecovcli label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || "")
+    response=$(codecovcli label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || true)
     if [[ -n $response ]]; then
         break
+    else
+        say "$y ->$x  Attempt failed"
     fi
 done
 
@@ -65,10 +67,15 @@ fi
 if [[ -z $ats_tests_to_run ]]; then
     say "$y==>$x No tests to run, picking random test"
     ats_tests_to_skip_array=($ats_tests_to_skip)
-    ats_tests_to_run=${ats_tests_to_skip_array[ $RANDOM % ${#ats_tests_to_skip_array[@]} ]}
+
+    if [[ -z $ats_tests_to_skip ]]; then
+        say "$y==>$x No tests to skip, running all tests"
+    else
+        ats_tests_to_run=${ats_tests_to_skip_array[ $RANDOM % ${#ats_tests_to_skip_array[@]} ]}
+    fi
 fi
 
 test_commands="$runner_options "
 test_commands+=$ats_tests_to_run
-say "$gArguments to run:$x"
+say "${g}Arguments to run:$x"
 echo "$test_commands"
