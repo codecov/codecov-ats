@@ -87,7 +87,7 @@ else
 	exit ${exit_with}
 fi
 
-if $(codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}-t ${CODECOV_TOKEN}); then
+if $(codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}-token ${CODECOV_STATIC_TOKEN}); then
 	say "${g}Codecov: Successfully ran static analysis$x"
 else
  	say "${r}Codecov: Failed to run static analysis$x"

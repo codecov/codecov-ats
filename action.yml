@@ -86,7 +86,7 @@ runs:
 
         $(commands=$(./codecov_ats.sh | tail -n 1))
 
-        if [[ $? -eq 0 ]]; then
+        if [[ $? == 0 ]]; then
           echo "Setting CODECOV_ATS_TESTS to GitHub environment"
           echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
         else
