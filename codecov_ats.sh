@@ -2,8 +2,8 @@
 
 [[ $INPUTS_VERBOSE == true ]] && set -x
 
-DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION=true
-TERM=xterm
+exit_with=0
+[[ $INPUTS_FAIL_ON_ERROR == true ]] && exit_with=1
 
 # Set colors
 b="\033[0;36m"
@@ -40,31 +40,81 @@ fi
 
 #Set up codecovcli arguments
 codecovcli_args=""
-[[ $INPUTS_VERBOSE == true ]] && codecovcli_args+="-v"
-[[ -n $INPUTS_ENTERPRISE_URL ]] && codecovcli_args+="-u ${INPUTS_ENTERPRISE_URL}"
-
-#Set up codecovcli command arguments
-command_args=""
-[[ -n $INPUTS_PARENT_SHA ]] && $command_args+=""
+[[ $INPUTS_VERBOSE == true ]] && codecovcli_args+="-v "
+[[ -n $INPUTS_ENTERPRISE_URL ]] && codecovcli_args+="-u ${INPUTS_ENTERPRISE_URL} "
 
 # Install Codecov CLI
 pip install codecov-cli
 
-codecovcli ${codecovcli_args} create-commit -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create commit$x"
-codecovcli ${codecovcli_args} create-report -t ${CODECOV_TOKEN} || say "${r}Codecov: Failed to properly create report$x"
-codecovcli ${codecovcli_args} static-analysis --token=${CODECOV_STATIC_TOKEN} || say "${r}Codecov: Failed to properly execute static analysis"
+create_commit_args=""
+[[ -n $INPUTS_FAIL_ON_ERROR ]] && $command_args+="-Z "
+[[ -n $INPUTS_OVERRIDE_PARENT ]] && $command_args+="--parent-sha ${INPUTS_OVERRIDE_PARENT} "
+[[ -n $INPUTS_OVERRIDE_PR ]] && $command_args+="-P ${INPUTS_OVERRIDE_PR} "
+[[ -n $INPUTS_OVERRIDE_BRANCH ]] && $command_args+="-B ${INPUTS_OVERRIDE_BRANCH} "
+[[ -n $INPUTS_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_OVERRIDE_SLUG ]] && $command_args+="-r ${INPUTS_OVERRIDE_SLUG} "
 
-base_commit_candidates=($(git log --format=%H | sed -n "1,10p")) # Get last 10 commits
+# create-report
+create_report_args=""
+[[ -n $INPUTS_FAIL_ON_ERROR ]] && $command_args+="-Z "
+[[ -n $INPUTS_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_OVERRIDE_SLUG ]] && $command_args+="-r ${INPUTS_OVERRIDE_SLUG} "
+
+# static-analysis
+static_analysis_args=""
+[[ -n $INPUTS_STATIC_FOLDERS_TO_EXCLUDE ]] && $command_args+="--folders-to-exclude ${INPUTS_STATIC_FOLDERS_TO_EXCLUDE} "
+[[ -n $INPUTS_STATIC_FOLDER_TO_SEARCH ]] && $command_args+="--foldertosearch ${INPUTS_STATIC_FOLDER_TO_SEARCH} "
+[[ -n $INPUTS_STATIC_NUMBER_PROCESSES ]] && $command_args+="--numberprocesses ${INPUTS_STATIC_NUMBER_PROCESSES} "
+[[ -n $INPUTS_STATIC_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_STATIC_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_STATIC_SEARCH_PATTERN ]] && $command_args+="--pattern ${INPUTS_STATIC_SEARCH_PATTERN} "
+[[ -n $INPUTS_STATIC_STATIC_FORCE ]] && $command_args+="--force "
+
+# label-analysis
+label_analysis_args=""
+[[ -n $INPUTS_LABEL_MAX_WAIT_TIME ]] && $command_args+="--max-wait-time ${INPUTS_LABEL_MAX_WAIT_TIME} "
+
+if $(codecovcli ${codecovcli_args}create-commit ${create_commit_args}-t ${CODECOV_TOKEN}); then
+	say "${g}Codecov: Successfully created commit record$x"
+else
+ 	say "${r}Codecov: Failed to properly create commit$x"
+	exit ${exit_with}
+fi
+
+if $(codecovcli ${codecovcli_args}create-report ${create_report_args}-t ${CODECOV_TOKEN}); then
+	say "${g}Codecov: Successfully created report record$x"
+else
+ 	say "${r}Codecov: Failed to properly create report$x"
+	exit ${exit_with}
+fi
+
+if $(codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}-t ${CODECOV_TOKEN}); then
+	say "${g}Codecov: Successfully ran static analysis$x"
+else
+ 	say "${r}Codecov: Failed to run static analysis$x"
+	exit ${exit_with}
+fi
+
+if [[ -n $INPUTS_OVERRIDE_BASE_COMMIT ]]; then
+    base_commit_candidates=($INPUTS_OVERRIDE_BASE_COMMIT)
+else
+		base_commit_candidates=($(git log --format=%H | sed -n "1,10p")) # Get last 10 commits
+fi
+
 for base_commit in ${base_commit_candidates[@]}
 do
     say "$y==>$x Attempting label analysis with $b$base_commit$x"
-    response=$(codecovcli ${codecovcli_args} label-analysis --token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || true)
+    response=$(codecovcli ${codecovcli_args}label-analysis ${label_analysis_args}--token=${CODECOV_STATIC_TOKEN} --base-sha=$base_commit --dry-run --dry-run-format="json" || true)
     if [[ -n $response ]]; then
         break
     else
         say "$y ->$x  Attempt failed"
     fi
 done
+
+if [[ -z $response ]]; then
+ 	say "${r}Codecov: Failed to run label analysis$x"
+	exit ${exit_with}
+fi
 
 response=$(echo $response | sed 's/,//g')
 runner_options=$(echo $response | sed 's/^.*runner_options\": \[//' | sed 's/\].*$//')
