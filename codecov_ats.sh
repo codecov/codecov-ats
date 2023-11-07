@@ -2,9 +2,6 @@
 
 [[ $INPUTS_VERBOSE == true ]] && set -x
 
-exit_with=0
-[[ $INPUTS_FAIL_ON_ERROR == true ]] && exit_with=1
-
 # Set colors
 b="\033[0;36m"
 g="\033[0;32m"
@@ -77,21 +74,22 @@ if $(codecovcli ${codecovcli_args}create-commit ${create_commit_args}-t ${CODECO
 	say "${g}Codecov: Successfully created commit record$x"
 else
  	say "${r}Codecov: Failed to properly create commit$x"
-	exit ${exit_with}
+  exit 1
 fi
 
 if $(codecovcli ${codecovcli_args}create-report ${create_report_args}-t ${CODECOV_TOKEN}); then
 	say "${g}Codecov: Successfully created report record$x"
 else
  	say "${r}Codecov: Failed to properly create report$x"
-	exit ${exit_with}
+  exit 1
 fi
 
-if $(codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}-token ${CODECOV_STATIC_TOKEN}); then
+codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}--token ${CODECOV_STATIC_TOKEN}
+if [[ $? == 0 ]]; then
 	say "${g}Codecov: Successfully ran static analysis$x"
 else
  	say "${r}Codecov: Failed to run static analysis$x"
-	exit ${exit_with}
+  exit 1
 fi
 
 if [[ -n $INPUTS_OVERRIDE_BASE_COMMIT ]]; then
@@ -111,9 +109,9 @@ do
     fi
 done
 
-if [[ -z $response ]]; then
- 	say "${r}Codecov: Failed to run label analysis$x"
-	exit ${exit_with}
+if [[ -z $response && -n $INPUTS_OVERRIDE_BASE_COMMIT ]]; then
+ 	say "${r}Codecov: Failed to run label analysis. Please select a different base commit.$x"
+	exit 1
 fi
 
 response=$(echo $response | sed 's/,//g')

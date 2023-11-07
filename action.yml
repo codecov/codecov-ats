@@ -10,9 +10,6 @@ inputs:
   enterprise_url:
     description: 'Change the upload host (Enterprise use only)'
     required: false
-  fail_ci_if_error:
-    description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
-    required: false
   file_pattern:
     description: 'File pattern to search for. Defaults to "*"'
     required: false
@@ -81,9 +78,6 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        exit_with=0
-        [[ $INPUTS_FAIL_ON_ERROR == true ]] && exit_with=1
-
         $(commands=$(./codecov_ats.sh | tail -n 1))
 
         if [[ $? == 0 ]]; then
@@ -91,14 +85,13 @@ runs:
           echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
         else
           echo "Codecov: Action failed to successfully run"
-          exit $exit_with
+          exit 1;
         fi
       shell: bash
       env:
         INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
         INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
         INPUTS_ENTERPRISE_URL: ${{ inputs.enterprise_url }}
-        INPUTS_FAIL_ON_ERROR: ${{ inputs.fail_ci_if_error }}
         INPUTS_LABEL_MAX_WAIT_TIME: ${{ inputs.label_max_wait_time }}
         INPUTS_OVERRIDE_BASE_COMMIT: ${{ inputs.override_base_commit }}
         INPUTS_OVERRIDE_BRANCH: ${{ inputs.override_branch }}
