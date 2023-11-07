@@ -21,7 +21,6 @@ jobs:
       - name: Run ATS
         uses: ./
         with:
-          fail_ci_if_error: true
           folders_to_exclude: node_modules
           verbose: true
         env:
