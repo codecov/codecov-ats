@@ -81,16 +81,18 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        if $(commands=$(./codecov_ats.sh | tail -n 1)); then
+        exit_with=0
+        [[ $INPUTS_FAIL_ON_ERROR == true ]] && exit_with=1
+
+        $(commands=$(./codecov_ats.sh | tail -n 1))
+
+        if [[ $? -eq 0 ]]; then
           echo "Setting CODECOV_ATS_TESTS to GitHub environment"
           echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
         else
           echo "Codecov: Action failed to successfully run"
-          if [[ $INPUTS_FAIL_ON_ERROR == true ]]; then
-            exit 1;
-          else
-            exit 0;
-          fi
+          exit $exit_with
+        fi
       shell: bash
       env:
         INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
