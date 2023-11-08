@@ -1,5 +1,5 @@
 name: 'Codecov ATS'
-description: "GitHub Action that returns selected test labels from Codecov☂️  to CI"
+description: 'GitHub Action that returns selected test labels from Codecov☂️  to CI'
 inputs:
   token:
     description: 'Repository upload token - get it from codecov.io. Required'
@@ -7,19 +7,19 @@ inputs:
   static_token:
     description: 'Repository static token - get it from codecov.io. Required'
     required: true
-  fail_ci_if_error:
-    description: 'Specify whether or not CI build should fail if Codecov runs into an error during upload'
+  enterprise_url:
+    description: 'Change the upload host (Enterprise use only)'
     required: false
   file_pattern:
-    description: "File pattern to search for. Defaults to '*'"
+    description: 'File pattern to search for. Defaults to "*"'
     required: false
   folders_to_exclude:
-    description: "Avoid certain folders when uploading static analysis"
+    description: 'Avoid certain folders when uploading static analysis'
     requred: false
   force:
     description: 'Force upload of files during static analysis regardless if they are new'
     required: false
-  max_wait_time:
+  label_max_wait_time:
     description: 'Max time (in seconds) to wait for the label analysis. Default is to wait forever.'
     required: false
   os:
@@ -31,8 +31,35 @@ inputs:
   override_base_commit:
     description: 'Override the assumed base commit.'
     required: false
+  override_branch:
+    description: 'Branch to which this commit belongs to'
+    required: false
   override_commit:
     description: 'Commit SHA (with 40 chars)'
+    required: false
+  override_parent:
+    description: 'SHA (with 40 chars) of what should be the parent of this commit'
+    required: false
+  override_pr:
+    description: 'Specify the pull request number mannually.'
+    required: false
+  override_slug:
+    description: 'owner/repo slug used instead of the private repo token in Self-hosted'
+    required: false
+  static_folders_to_exclude:
+    description: 'Folders not to search during static analysis'
+    required: false
+  static_folder_to_search:
+    description: 'Folder to search during static analysis'
+    required: false
+  static_force:
+    description: 'Force running of static analysis'
+    required: false
+  static_number_processes:
+    description: 'Number of processes to use during static analysis'
+    required: false
+  static_search_pattern:
+    description: 'File pattern to search for during static analysis'
     required: false
   verbose:
     description: 'Specify whether the Codecov output should be verbose'
@@ -41,9 +68,40 @@ inputs:
     description: 'Specify which version of the Codecov CLI should be used. Defaults to `latest`'
     required: false
 
+
 branding:
   color: 'red'
   icon: 'umbrella'
+
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "composite"
+  steps:
+    - id: codecov-ats
+      run: |
+        commands=$(./codecov_ats.sh | tail -n 1)
+
+        if [[ $? == 0 ]]; then
+          echo "Setting CODECOV_ATS_TESTS to GitHub environment"
+          echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
+        else
+          echo "Codecov: Action failed to successfully run"
+          exit 1;
+        fi
+      shell: bash
+      env:
+        INPUTS_CODECOV_STATIC_TOKEN: ${{ inputs.static_token }}
+        INPUTS_CODECOV_TOKEN: ${{ inputs.token }}
+        INPUTS_ENTERPRISE_URL: ${{ inputs.enterprise_url }}
+        INPUTS_LABEL_MAX_WAIT_TIME: ${{ inputs.label_max_wait_time }}
+        INPUTS_OVERRIDE_BASE_COMMIT: ${{ inputs.override_base_commit }}
+        INPUTS_OVERRIDE_BRANCH: ${{ inputs.override_branch }}
+        INPUTS_OVERRIDE_COMMIT: ${{ inputs.override_commit }}
+        INPUTS_OVERRIDE_PARENT: ${{ inputs.override_parent }}
+        INPUTS_OVERRIDE_PR: ${{ inputs.override_pr }}
+        INPUTS_OVERRIDE_SLUG: ${{ inputs.override_slug }}
+        INPUTS_STATIC_FOLDERS_TO_EXCLUDE: ${{ inputs.static_folder_to_exclude }}
+        INPUTS_STATIC_FOLDER_TO_SEARCH: ${{ inputs.static_folder_to_search }}
+        INPUTS_STATIC_FORCE: ${{ inputs.static_force }}
+        INPUTS_STATIC_NUMBER_PROCESSES: ${{ inputs.static_number_processes }}
+        INPUTS_STATIC_SEARCH_PATTERN: ${{ inputs.static_search_pattern }}
+        INPUTS_VERBOSE: ${{ inputs.verbose }}

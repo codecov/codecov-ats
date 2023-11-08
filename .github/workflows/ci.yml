@@ -1,22 +1,6 @@
 name: Workflow for Codecov Action
 on: [push, pull_request]
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: npm install
-      - name: Lint
-        run: npm run lint
-      - name: Run tests and collect coverage
-        run: npm run test
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v4-beta
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   run:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -37,7 +21,6 @@ jobs:
       - name: Run ATS
         uses: ./
         with:
-          fail_ci_if_error: true
           folders_to_exclude: node_modules
           verbose: true
         env:
