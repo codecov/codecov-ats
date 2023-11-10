@@ -78,7 +78,7 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        echo "Running ATS Action version: $(cat VERSION)"
+        echo "Running ATS Action version: $(cat dist/VERSION)"
         commands=$(./dist/codecov_ats.sh | tail -n 1)
 
         if [[ $? == 0 ]]; then
