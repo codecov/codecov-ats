@@ -78,8 +78,9 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        echo "Running ATS Action version: $(cat dist/VERSION)"
-        commands=$(./dist/codecov_ats.sh | tail -n 1)
+        echo "${{ github.action_path }}" >> $GITHUB_PATH
+        echo "Running ATS Action version: $(cat {{ github.action_path }}/dist/VERSION)"
+        commands=$(${{ github.action_path }}/dist/codecov_ats.sh | tail -n 1)
 
         if [[ $? == 0 ]]; then
           echo "Setting CODECOV_ATS_TESTS to GitHub environment"
