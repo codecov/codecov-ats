@@ -79,7 +79,7 @@ runs:
     - id: codecov-ats
       run: |
         echo "${{ github.action_path }}" >> $GITHUB_PATH
-        echo "Running ATS Action version: $(cat ${{ github.action_path }}dist/VERSION)"
+        echo "Running ATS Action version: $(cat ${{ github.action_path }}/dist/VERSION)"
         commands=$(${{ github.action_path }}/dist/codecov_ats.sh | tail -n 1)
 
         if [[ $? == 0 ]]; then
