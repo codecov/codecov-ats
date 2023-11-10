@@ -78,7 +78,7 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        commands=$(./codecov_ats.sh | tail -n 1)
+        commands=$(./dist/codecov_ats.sh | tail -n 1)
 
         if [[ $? == 0 ]]; then
           echo "Setting CODECOV_ATS_TESTS to GitHub environment"

@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
 set -e
+
+cp src/codecov_ats.sh dist/
