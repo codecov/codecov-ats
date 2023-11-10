@@ -3,3 +3,5 @@
 set -e
 
 cp src/codecov_ats.sh dist/
+cp VERSION dist/
+git add dist/
