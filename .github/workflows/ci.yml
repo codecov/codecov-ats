@@ -56,9 +56,12 @@ jobs:
         with:
           ruby-version: head
       - name: Install bashcov gem
-        run: gem install bashcov
+        run: |
+          gem install bashcov
+          gem install simplecov
+          gem install simplecov-cobertura
       - name: Run ATS
-        run: bashcov ./dist/codecov_ats.sh
+        run: bashcov ./src/codecov_ats.sh
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
