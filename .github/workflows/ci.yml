@@ -35,3 +35,37 @@ jobs:
         with:
           flags: smart-tests
           plugins: pycoverage,compress-pycoverage
+
+  test-and-covererage:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
+        with:
+          fetch-depth: 0
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install ruby
+        uses: ruby/setup-ruby
+        with:
+          ruby-version: head
+      - name: Install bashcov gem
+        run: gem install bashcov
+      - name: Run ATS
+        run: bashcov ./dist/codecov_ats.sh
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+          INPUTS_VERBOSE: true
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4-beta
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          flags: bash
