@@ -88,7 +88,7 @@ runs:
         echo $GITHUB_ACTION_PATH | tee -a $GITHUB_PATH
         echo "Running ATS Action version: $(cat $GITHUB_ACTION_PATH/dist/VERSION)"
 
-        ${{ github.action_path }}/dist/codecov_ats.sh | tee codecov_ats_output.txt
+        "$GITHUB_ACTION_PATH"/dist/codecov_ats.sh | tee codecov_ats_output.txt
 
         if [[ $? == 0 ]]; then
           echo "Setting CODECOV_ATS_TESTS to GitHub environment"
