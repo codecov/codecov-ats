@@ -44,31 +44,31 @@ codecovcli_args=""
 pip install codecov-cli
 
 create_commit_args=""
-[[ -n $INPUTS_FAIL_ON_ERROR ]] && $command_args+="-Z "
-[[ -n $INPUTS_OVERRIDE_PARENT ]] && $command_args+="--parent-sha ${INPUTS_OVERRIDE_PARENT} "
-[[ -n $INPUTS_OVERRIDE_PR ]] && $command_args+="-P ${INPUTS_OVERRIDE_PR} "
-[[ -n $INPUTS_OVERRIDE_BRANCH ]] && $command_args+="-B ${INPUTS_OVERRIDE_BRANCH} "
-[[ -n $INPUTS_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
-[[ -n $INPUTS_OVERRIDE_SLUG ]] && $command_args+="-r ${INPUTS_OVERRIDE_SLUG} "
+[[ -n $INPUTS_FAIL_ON_ERROR ]] && create_commit_args+="-Z "
+[[ -n $INPUTS_OVERRIDE_PARENT ]] && create_commit_args+="--parent-sha ${INPUTS_OVERRIDE_PARENT} "
+[[ -n $INPUTS_OVERRIDE_PR ]] && create_commit_args+="-P ${INPUTS_OVERRIDE_PR} "
+[[ -n $INPUTS_OVERRIDE_BRANCH ]] && create_commit_args+="-B ${INPUTS_OVERRIDE_BRANCH} "
+[[ -n $INPUTS_OVERRIDE_COMMIT ]] && create_commit_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_OVERRIDE_SLUG ]] && create_commit_args+="-r ${INPUTS_OVERRIDE_SLUG} "
 
 # create-report
 create_report_args=""
-[[ -n $INPUTS_FAIL_ON_ERROR ]] && $command_args+="-Z "
-[[ -n $INPUTS_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
-[[ -n $INPUTS_OVERRIDE_SLUG ]] && $command_args+="-r ${INPUTS_OVERRIDE_SLUG} "
+[[ -n $INPUTS_FAIL_ON_ERROR ]] && create_report_args+="-Z "
+[[ -n $INPUTS_OVERRIDE_COMMIT ]] && create_report_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_OVERRIDE_SLUG ]] && create_report_args+="-r ${INPUTS_OVERRIDE_SLUG} "
 
 # static-analysis
 static_analysis_args=""
-[[ -n $INPUTS_STATIC_FOLDERS_TO_EXCLUDE ]] && $command_args+="--folders-to-exclude ${INPUTS_STATIC_FOLDERS_TO_EXCLUDE} "
-[[ -n $INPUTS_STATIC_FOLDER_TO_SEARCH ]] && $command_args+="--foldertosearch ${INPUTS_STATIC_FOLDER_TO_SEARCH} "
-[[ -n $INPUTS_STATIC_NUMBER_PROCESSES ]] && $command_args+="--numberprocesses ${INPUTS_STATIC_NUMBER_PROCESSES} "
-[[ -n $INPUTS_STATIC_OVERRIDE_COMMIT ]] && $command_args+="-C ${INPUTS_STATIC_OVERRIDE_COMMIT} "
-[[ -n $INPUTS_STATIC_SEARCH_PATTERN ]] && $command_args+="--pattern ${INPUTS_STATIC_SEARCH_PATTERN} "
-[[ -n $INPUTS_STATIC_STATIC_FORCE ]] && $command_args+="--force "
+[[ -n $INPUTS_STATIC_FOLDERS_TO_EXCLUDE ]] && static_analysis_args+="--folders-to-exclude ${INPUTS_STATIC_FOLDERS_TO_EXCLUDE} "
+[[ -n $INPUTS_STATIC_FOLDER_TO_SEARCH ]] && static_analysis_args+="--foldertosearch ${INPUTS_STATIC_FOLDER_TO_SEARCH} "
+[[ -n $INPUTS_STATIC_NUMBER_PROCESSES ]] && static_analysis_args+="--numberprocesses ${INPUTS_STATIC_NUMBER_PROCESSES} "
+[[ -n $INPUTS_STATIC_OVERRIDE_COMMIT ]] && static_analysis_args+="-C ${INPUTS_STATIC_OVERRIDE_COMMIT} "
+[[ -n $INPUTS_STATIC_SEARCH_PATTERN ]] && static_analysis_args+="--pattern ${INPUTS_STATIC_SEARCH_PATTERN} "
+[[ -n $INPUTS_STATIC_STATIC_FORCE ]] && static_analysis_args+="--force "
 
 # label-analysis
 label_analysis_args=""
-[[ -n $INPUTS_LABEL_MAX_WAIT_TIME ]] && $command_args+="--max-wait-time ${INPUTS_LABEL_MAX_WAIT_TIME} "
+[[ -n $INPUTS_LABEL_MAX_WAIT_TIME ]] && label_analysis_args+="--max-wait-time ${INPUTS_LABEL_MAX_WAIT_TIME} "
 
 if $(codecovcli ${codecovcli_args}create-commit ${create_commit_args}-t ${CODECOV_TOKEN}); then
 	say "${g}Codecov: Successfully created commit record$x"
