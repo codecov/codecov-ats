@@ -52,7 +52,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install ruby
-        uses: ruby/setup-ruby
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: head
       - name: Install bashcov gem
