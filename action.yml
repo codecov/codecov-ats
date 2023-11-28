@@ -78,8 +78,8 @@ runs:
   steps:
     - id: codecov-ats
       run: |
-        echo "${{ github.action_path }}" >> $GITHUB_PATH
-        echo "Running ATS Action version: $(cat ${{ github.action_path }}/dist/VERSION)"
+        echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+        echo "Running ATS Action version: $(cat $GITHUB_ACTION_PATH/dist/VERSION)"
 
         ${{ github.action_path }}/dist/codecov_ats.sh | tee codecov_ats_output.txt
 
