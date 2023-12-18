@@ -1,5 +1,13 @@
 name: Workflow for Codecov Action
 on: [push, pull_request]
+
+defaults:
+  run:
+    # the default default is:
+    #      bash --noprofile --norc -eo pipefail {0}
+    # Helps with debugging
+    shell: bash --noprofile --norc -eo pipefail -ux {0}
+
 jobs:
   run:
     runs-on: ${{ matrix.os }}
@@ -27,7 +35,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: Run Tests and collect coverage
-        run: pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
+        run: cat codecov_ats/tests_to_run.json | jq 'join("\u0000")' --raw-output | tr -d '\n' | xargs -r0 pytest --cov app
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
