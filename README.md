@@ -60,11 +60,21 @@ This action will populate files in `codecov_ats` folder with the tests to run.
 ```
 
 6. Update your `pytest` run to include the tests selected from ATS. You will read the list of tests that were selected to run by ATS.
-These tests are exported to `codecov_ats/tests_to_run.json`
+These tests are exported to `codecov_ats/tests_to_run.json`. Skips running tests if no tests were selected.
+(You can copy the same step and use the `codecov_ats/tests_to_skip.json` file to run the tests selected to be skipped)
 
 ```yaml
 - name: Run tests and collect coverage
-  run: cat codecov_ats/tests_to_run.json | jq 'join("\u0000")' --raw-output | tr -d '\n' | xargs -r0 pytest --cov app
+  run: |
+    length_of_tests=$(cat codecov_ats/tests_to_run.json | jq 'length')
+    # The 1st value doesn't count, it's '--cov-context=test' (hence -gt 1)
+    if [ $length_of_tests -gt 1 ]; then
+      echo "Running $length_of_tests tests"
+      # --raw-output0 doesn't work.
+      cat codecov_ats/tests_to_run.json | jq 'join("\u0000")' --raw-output | tr -d '\n' | xargs -r0 pytest --cov app
+    else
+      echo "No tests to run"
+    fi
 ```
 
 1. If you are not already using the Codecov CLI to upload coverage, you can update the Codecov Action to `v4-beta`

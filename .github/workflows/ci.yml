@@ -34,8 +34,17 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
-      - name: Run Tests and collect coverage
-        run: cat codecov_ats/tests_to_run.json | jq 'join("\u0000")' --raw-output | tr -d '\n' | xargs -r0 pytest --cov app
+      - name: Run Tests and collect coverage (if there are tests to run)
+        run: |
+          length_of_tests=$(cat codecov_ats/tests_to_run.json | jq 'length')
+          # The 1st value doesn't count, it's '--cov-context=test' (hence -gt 1)
+          if [ $length_of_tests -gt 1 ]; then
+            echo "Running $length_of_tests tests"
+            # --raw-output0 doesn't work.
+            cat codecov_ats/tests_to_run.json | jq 'join("\u0000")' --raw-output | tr -d '\n' | xargs -r0 pytest --cov app
+          else
+            echo "No tests to run"
+          fi
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:
