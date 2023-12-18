@@ -13,13 +13,16 @@ say() {
   echo -e "$1"
 }
 
+error() {
+    echo -e "${r}$*${e}" >&2
+}
 
 # Set up token variables
 if [[ -n $INPUTS_CODECOV_TOKEN ]]; then
     CODECOV_TOKEN=$INPUTS_CODECOV_TOKEN
 fi
 if [[ -z $CODECOV_TOKEN ]]; then
-    say "${r}Token not provided or could not be found in environment. Exiting${x}"
+    error "Token not provided or could not be found in environment. Exiting"
     exit 1
 else
     say "$b==>$x Token of length ${#CODECOV_TOKEN} detected"
@@ -29,7 +32,7 @@ if [[ -n $INPUTS_CODECOV_STATIC_TOKEN ]]; then
     CODECOV_STATIC_TOKEN=$INPUTS_CODECOV_STATIC_TOKEN
 fi
 if [[ -z $CODECOV_STATIC_TOKEN ]]; then
-    say "${r}Static token not provided or could not be found in environment. Exiting${x}"
+    error "Static token not provided or could not be found in environment. Exiting"
     exit 1
 else
     say "$b==>$x Static token of length ${#CODECOV_STATIC_TOKEN} detected"
@@ -73,14 +76,14 @@ label_analysis_args=""
 if $(codecovcli ${codecovcli_args}create-commit ${create_commit_args}-t ${CODECOV_TOKEN}); then
 	say "${g}Codecov: Successfully created commit record$x"
 else
- 	say "${r}Codecov: Failed to properly create commit$x"
+ 	error "Codecov: Failed to properly create commit"
   exit 1
 fi
 
 if $(codecovcli ${codecovcli_args}create-report ${create_report_args}-t ${CODECOV_TOKEN}); then
 	say "${g}Codecov: Successfully created report record$x"
 else
- 	say "${r}Codecov: Failed to properly create report$x"
+ 	error "Codecov: Failed to properly create report"
   exit 1
 fi
 
@@ -88,7 +91,7 @@ codecovcli ${codecovcli_args}static-analysis ${static_analysis_args}--token ${CO
 if [[ $? == 0 ]]; then
 	say "${g}Codecov: Successfully ran static analysis$x"
 else
- 	say "${r}Codecov: Failed to run static analysis$x"
+ 	error "Codecov: Failed to run static analysis"
   exit 1
 fi
 
@@ -110,7 +113,7 @@ do
 done
 
 if [[ -z $response && -n $INPUTS_OVERRIDE_BASE_COMMIT ]]; then
- 	say "${r}Codecov: Failed to run label analysis. Please select a different base commit.$x"
+ 	error "Codecov: Failed to run label analysis. Please select a different base commit."
 	exit 1
 fi
 
