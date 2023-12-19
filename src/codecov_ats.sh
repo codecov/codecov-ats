@@ -133,6 +133,9 @@ if [[ -z $ats_tests_to_run ]]; then
     else
         ats_tests_to_run=${ats_tests_to_skip_array[ $RANDOM % ${#ats_tests_to_skip_array[@]} ]}
     fi
+elif [[ -z $ats_tests_to_skip ]]; then
+    say "$y==>$x No tests are skipped, running all"
+    ats_tests_to_run=""
 fi
 
 test_commands="$runner_options "
