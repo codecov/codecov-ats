@@ -120,9 +120,7 @@ fi
 # Create directory to put result files
 mkdir codecov_ats
 # Export tests to run and tests to skip into respective files
-jq <<< "$response" '.runner_options + .ats_tests_to_run | @json' --raw-output > codecov_ats/tests_to_run.json
 jq <<< "$response" '.runner_options + .ats_tests_to_run | @sh' --raw-output > codecov_ats/tests_to_run.txt
-jq <<< "$response" '.runner_options + .ats_tests_to_skip | @json' --raw-output > codecov_ats/tests_to_skip.json
 jq <<< "$response" '.runner_options + .ats_tests_to_skip | @sh' --raw-output > codecov_ats/tests_to_skip.txt
 
 
@@ -141,6 +139,15 @@ tee <<< \
     "{\"ats_success\": $ats_success, \"error\": $ats_fallback_reason, \"tests_to_run\": $run_count, \"tests_analyzed\": $((run_count+skip_count))}" \
     "$GITHUB_STEP_SUMMARY" \
     "codecov_ats/result.json"
+
+# Export 'all_tests_skipped' variable
+if [[ "$run_count" -eq 0 ]]; then
+    # For use in other jobs
+    echo "all_tests_skipped=1" >> "$GITHUB_OUTPUT"
+else
+    # For use in other jobs
+    echo "all_tests_skipped=0" >> "$GITHUB_OUTPUT"
+fi
 
 echo "Tests to run exported to ./codecov_ats/tests_to_run.txt"
 echo "Tests to run exported to ./codecov_ats/tests_to_skip.txt"

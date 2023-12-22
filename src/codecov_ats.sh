@@ -141,5 +141,14 @@ tee <<< \
     "$GITHUB_STEP_SUMMARY" \
     "codecov_ats/result.json"
 
+# Export 'all_tests_skipped' variable
+if [[ "$run_count" -eq 0 ]]; then
+    # For use in other jobs
+    echo "all_tests_skipped=1" >> "$GITHUB_OUTPUT"
+else
+    # For use in other jobs
+    echo "all_tests_skipped=0" >> "$GITHUB_OUTPUT"
+fi
+
 echo "Tests to run exported to ./codecov_ats/tests_to_run.txt"
 echo "Tests to run exported to ./codecov_ats/tests_to_skip.txt"
