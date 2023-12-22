@@ -37,15 +37,12 @@ jobs:
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
       - name: "[debug] see content of generated files"
         run: |
-          echo ${{ steps.run_ats.outputs.all_tests_skipped }}
           ls codecov_ats
           cat codecov_ats/tests_to_run.txt
           cat codecov_ats/tests_to_skip.txt
       - name: Run Tests and collect coverage (if there are tests to run)
         run: |
-          if [[ "${{ steps.run_ats.outputs.all_tests_skipped }}" != 1 ]]; then
             cat codecov_ats/tests_to_run.txt | xargs pytest --cov app
-          fi
       - name: "[debug] Running skipped tests"
         run: |
           cat codecov_ats/tests_to_skip.txt | xargs pytest --cov app
