@@ -2,3 +2,6 @@ node_modules
 coverage
 __pycache__
 codecov_ats_local.sh
+
+# act
+.secrets

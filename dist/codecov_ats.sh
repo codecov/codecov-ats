@@ -121,7 +121,9 @@ fi
 mkdir codecov_ats
 # Export tests to run and tests to skip into respective files
 jq <<< "$response" '.runner_options + .ats_tests_to_run | @json' --raw-output > codecov_ats/tests_to_run.json
+jq <<< "$response" '.runner_options + .ats_tests_to_run | @sh' --raw-output > codecov_ats/tests_to_run.txt
 jq <<< "$response" '.runner_options + .ats_tests_to_skip | @json' --raw-output > codecov_ats/tests_to_skip.json
+jq <<< "$response" '.runner_options + .ats_tests_to_skip | @sh' --raw-output > codecov_ats/tests_to_skip.txt
 
 
 # Statistics on the test selection
@@ -140,5 +142,5 @@ tee <<< \
     "$GITHUB_STEP_SUMMARY" \
     "codecov_ats/result.json"
 
-echo "Tests to run exported to ./codecov_ats/tests_to_run.json"
-echo "Tests to run exported to ./codecov_ats/tests_to_skip.json"
+echo "Tests to run exported to ./codecov_ats/tests_to_run.txt"
+echo "Tests to run exported to ./codecov_ats/tests_to_skip.txt"
