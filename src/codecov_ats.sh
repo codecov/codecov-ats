@@ -46,8 +46,7 @@ codecovcli_args=""
 # Install Codecov CLI
 pip install codecov-cli
 
-create_commit_args=""
-[[ -n $INPUTS_FAIL_ON_ERROR ]] && create_commit_args+="-Z "
+create_commit_args="--fail-on-error "
 [[ -n $INPUTS_OVERRIDE_PARENT ]] && create_commit_args+="--parent-sha ${INPUTS_OVERRIDE_PARENT} "
 [[ -n $INPUTS_OVERRIDE_PR ]] && create_commit_args+="-P ${INPUTS_OVERRIDE_PR} "
 [[ -n $INPUTS_OVERRIDE_BRANCH ]] && create_commit_args+="-B ${INPUTS_OVERRIDE_BRANCH} "
@@ -55,8 +54,7 @@ create_commit_args=""
 [[ -n $INPUTS_OVERRIDE_SLUG ]] && create_commit_args+="-r ${INPUTS_OVERRIDE_SLUG} "
 
 # create-report
-create_report_args=""
-[[ -n $INPUTS_FAIL_ON_ERROR ]] && create_report_args+="-Z "
+create_report_args="--fail-on-error "
 [[ -n $INPUTS_OVERRIDE_COMMIT ]] && create_report_args+="-C ${INPUTS_OVERRIDE_COMMIT} "
 [[ -n $INPUTS_OVERRIDE_SLUG ]] && create_report_args+="-r ${INPUTS_OVERRIDE_SLUG} "
 
