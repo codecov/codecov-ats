@@ -1,5 +1,13 @@
 name: Workflow for Codecov Action
 on: [push, pull_request]
+
+defaults:
+  run:
+    # the default is:
+    #      bash --noprofile --norc -eo pipefail {0}
+    # Helps with debugging
+    shell: bash --noprofile --norc -eo pipefail -ux {0}
+
 jobs:
   run:
     runs-on: ${{ matrix.os }}
@@ -19,6 +27,7 @@ jobs:
       - name: Install python dependencies
         run: pip install -r app/requirements.txt
       - name: Run ATS
+        id: run_ats
         uses: ./
         with:
           folders_to_exclude: node_modules
@@ -26,8 +35,17 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
-      - name: Run Tests and collect coverage
-        run: pytest --cov app ${{ env.CODECOV_ATS_TESTS }}
+      - name: "[debug] see content of generated files"
+        run: |
+          ls codecov_ats
+          cat codecov_ats/tests_to_run.txt
+          cat codecov_ats/tests_to_skip.txt
+      - name: Run Tests and collect coverage (if there are tests to run)
+        run: |
+            cat codecov_ats/tests_to_run.txt | xargs pytest --cov app
+      - name: "[debug] Running skipped tests"
+        run: |
+          cat codecov_ats/tests_to_skip.txt | xargs pytest --cov app
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4-beta
         env:

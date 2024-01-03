@@ -115,31 +115,40 @@ if [[ -z $response && -n $INPUTS_OVERRIDE_BASE_COMMIT ]]; then
 	exit 1
 fi
 
-response=$(echo $response | sed 's/,//g')
-runner_options=$(echo $response | sed 's/^.*runner_options\": \[//' | sed 's/\].*$//')
-ats_tests_to_run=$(echo $response | sed 's/^.*ats_tests_to_run\": \[//' | sed 's/\].*$//')
-ats_tests_to_skip=$(echo $response | sed 's/^.*ats_tests_to_skip\": \[//' | sed 's/\].*$//')
+# Post process label-analysis response
 
-if [[ -z $runner_options ]]; then
-    say "$y==>$x Could not find 'runner_options', defaulting to '--cov-context=test'"
-    runner_options="--cov-context=test"
+
+# Create directory to put result files
+mkdir codecov_ats
+# Export tests to run and tests to skip into respective files
+jq <<< "$response" '.runner_options + .ats_tests_to_run | @sh' --raw-output > codecov_ats/tests_to_run.txt
+jq <<< "$response" '.runner_options + .ats_tests_to_skip | @sh' --raw-output > codecov_ats/tests_to_skip.txt
+
+
+# Statistics on the test selection
+testcount() { jq <<< "$response" ".$1 | length"; }
+run_count=$(testcount ats_tests_to_run)
+skip_count=$(testcount ats_tests_to_skip)
+
+# Change tests_to_run to have 1 test if no tests were selected
+# This avoids users running ALL tests if no test is selected to run
+# (ideally customer will they check test counts themselves and run tests conditionally)
+if [[ "$run_count" -eq 0 ]]; then
+    say "All tests skipped. Adding random test in tests_to_run to avoid running all tests"
+    jq <<< "$response" --argjson randint $RANDOM '.runner_options + [.ats_tests_to_skip[$randint % length]] | @sh' --raw-output > codecov_ats/tests_to_run.txt
 fi
 
-if [[ -z $ats_tests_to_run ]]; then
-    say "$y==>$x No tests to run, picking random test"
-    ats_tests_to_skip_array=($ats_tests_to_skip)
-
-    if [[ -z $ats_tests_to_skip ]]; then
-        say "$y==>$x No tests to skip, running all tests"
-    else
-        ats_tests_to_run=${ats_tests_to_skip_array[ $RANDOM % ${#ats_tests_to_skip_array[@]} ]}
-    fi
-elif [[ -z $ats_tests_to_skip ]]; then
-    say "$y==>$x No tests are skipped, running all"
-    ats_tests_to_run=""
+# Parse any potential errors that made ATS fallback to running all tests and surface them
+ats_fallback_reason=$(jq <<< "$response" '.ats_fallback_reason')
+if [ "$ats_fallback_reason" == "null" ]; then
+    ats_success=true
+else
+    ats_success=false
 fi
+tee <<< \
+    "{\"ats_success\": $ats_success, \"error\": $ats_fallback_reason, \"tests_to_run\": $run_count, \"tests_analyzed\": $((run_count+skip_count))}" \
+    "$GITHUB_STEP_SUMMARY" \
+    "codecov_ats/result.json"
 
-test_commands="$runner_options "
-test_commands+=$ats_tests_to_run
-say "${g}Arguments to run:$x"
-echo "$test_commands"
+echo "Tests to run exported to ./codecov_ats/tests_to_run.txt"
+echo "Tests to skip exported to ./codecov_ats/tests_to_skip.txt"

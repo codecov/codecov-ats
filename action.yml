@@ -84,9 +84,8 @@ runs:
         ${{ github.action_path }}/dist/codecov_ats.sh | tee codecov_ats_output.txt
 
         if [[ $? == 0 ]]; then
-          echo "Setting CODECOV_ATS_TESTS to GitHub environment"
-          commands=$(tail -1 codecov_ats_output.txt)
-          echo "CODECOV_ATS_TESTS=$commands" >> "$GITHUB_ENV"
+          echo "Codecov: Action complete. Check codecov_ats folder for results."
+          cat codecov_ats/result.json
         else
           echo "Codecov: Action failed to successfully run"
           exit 1;
