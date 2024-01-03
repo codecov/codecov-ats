@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 defaults:
   run:
-    # the default default is:
+    # the default is:
     #      bash --noprofile --norc -eo pipefail {0}
     # Helps with debugging
     shell: bash --noprofile --norc -eo pipefail -ux {0}

@@ -129,6 +129,15 @@ jq <<< "$response" '.runner_options + .ats_tests_to_skip | @sh' --raw-output > c
 testcount() { jq <<< "$response" ".$1 | length"; }
 run_count=$(testcount ats_tests_to_run)
 skip_count=$(testcount ats_tests_to_skip)
+
+# Change tests_to_run to have 1 test if no tests were selected
+# This avoids users running ALL tests if no test is selected to run
+# (ideally customer will they check test counts themselves and run tests conditionally)
+if [[ "$run_count" -eq 0 ]]; then
+    say "All tests skipped. Adding random test in tests_to_run to avoid running all tests"
+    jq <<< "$response" --argjson randint $RANDOM '.runner_options + [.ats_tests_to_skip[$randint % length]] | @sh' --raw-output > codecov_ats/tests_to_run.txt
+fi
+
 # Parse any potential errors that made ATS fallback to running all tests and surface them
 ats_fallback_reason=$(jq <<< "$response" '.ats_fallback_reason')
 if [ "$ats_fallback_reason" == "null" ]; then
@@ -142,4 +151,4 @@ tee <<< \
     "codecov_ats/result.json"
 
 echo "Tests to run exported to ./codecov_ats/tests_to_run.txt"
-echo "Tests to run exported to ./codecov_ats/tests_to_skip.txt"
+echo "Tests to skip exported to ./codecov_ats/tests_to_skip.txt"
