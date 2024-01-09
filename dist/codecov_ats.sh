@@ -117,6 +117,7 @@ fi
 
 # Post process label-analysis response
 
+
 # Create directory to put result files
 mkdir codecov_ats
 # Export tests to run and tests to skip into respective files
@@ -131,7 +132,7 @@ skip_count=$(testcount ats_tests_to_skip)
 
 # Change tests_to_run to have 1 test if no tests were selected
 # This avoids users running ALL tests if no test is selected to run
-# ⚠️ it's safer for the customer if they check test counts themselves and run tests conditionally
+# (ideally customer will they check test counts themselves and run tests conditionally)
 if [[ "$run_count" -eq 0 ]]; then
     say "All tests skipped. Adding random test in tests_to_run to avoid running all tests"
     jq <<< "$response" --argjson randint $RANDOM '.runner_options + [.ats_tests_to_skip[$randint % length]] | @sh' --raw-output > codecov_ats/tests_to_run.txt
