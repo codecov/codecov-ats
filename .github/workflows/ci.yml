@@ -47,7 +47,7 @@ jobs:
         run: |
           cat codecov_ats/tests_to_skip.txt | xargs pytest --cov app
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v4-beta
+        uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -85,7 +85,7 @@ jobs:
           CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
           INPUTS_VERBOSE: true
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v4-beta
+        uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
