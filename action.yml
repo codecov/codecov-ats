@@ -1,12 +1,12 @@
 name: 'Codecov ATS'
-description: 'GitHub Action that returns selected test labels from Codecov☂️  to CI'
+description: 'GitHub Action that returns selected test labels from Codecov☂️ to CI'
 inputs:
   token:
-    description: 'Repository upload token - get it from codecov.io. Required'
+    description: 'Repository upload token - get it from codecov.io. Required or set it with the environment variable CODECOV_TOKEN'
     required: false
   static_token:
-    description: 'Repository static token - get it from codecov.io. Required'
-    required: true
+    description: 'Repository static token - get it from codecov.io. Required or set it with the environment variable CODECOV_STATIC_TOKEN'
+    required: false
   enterprise_url:
     description: 'Change the upload host (Enterprise use only)'
     required: false
